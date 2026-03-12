@@ -16,6 +16,9 @@ export const Sidebar = () => {
     ...(isAdmin ? [
       { name: 'Simulations', path: '/simulations', icon: 'play_circle' },
       { name: 'Assignments', path: '/assignments', icon: 'assignment' },
+      { name: 'Personas', path: '/personas', icon: 'person_search' },
+      { name: 'Contexts', path: '/contexts', icon: 'schema' },
+      { name: 'Rubrics', path: '/rubrics', icon: 'rule' },
     ] : []),
   ];
 

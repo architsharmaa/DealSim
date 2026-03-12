@@ -15,4 +15,10 @@ export const authMiddleware = (req, res, next) => {
         res.status(401).json({ message: 'Token is not valid' });
     }
 };
+export const adminOnly = (req, res, next) => {
+    if (req.role !== 'organization_admin' && req.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admins only.' });
+    }
+    next();
+};
 //# sourceMappingURL=authMiddleware.js.map

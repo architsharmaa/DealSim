@@ -29,39 +29,44 @@ export interface SignupPayload {
 
 export interface Persona {
   id: string;
+  _id?: string; // For backend compatibility
   name: string;
   role: string;
   company: string;
-  avatarUrl: string;
-  traits: string[];
-  objective: string;
-  contextPrompt: string;
+  personalityTraits: string[];
+  resistanceLevel: 'low' | 'medium' | 'high';
+  defaultObjections: string[];
   createdAt: string;
 }
 
 export interface Context {
   id: string;
-  title: string;
-  description: string;
-  industry: string;
-  scenarioType: 'negotiation' | 'pitch' | 'discovery' | 'closing';
-  basePrompt: string;
+  _id?: string; // For backend compatibility
+  product: string;
+  dealSize: string;
+  salesStage: string;
+  specialConditions: string;
   createdAt: string;
+}
+
+export interface Competency {
+  name: string;
+  description: string;
+  weight: number;
+  scoringGuidelines: string;
 }
 
 export interface Rubric {
   id: string;
-  title: string;
-  criteria: Array<{
-    name: string;
-    description: string;
-    weight: number; // 0 to 1
-  }>;
+  _id?: string; // For backend compatibility
+  name: string;
+  competencies: Competency[];
   createdAt: string;
 }
 
 export interface Simulation {
   id: string;
+  _id?: string;
   title: string;
   description: string;
   personaId: string;
@@ -74,6 +79,7 @@ export interface Simulation {
 
 export interface Session {
   id: string;
+  _id?: string;
   simulationId: string;
   userId: string;
   status: 'active' | 'completed' | 'abandoned';
@@ -85,6 +91,7 @@ export interface Session {
 
 export interface Message {
   id: string;
+  _id?: string;
   sessionId: string;
   sender: 'user' | 'ai';
   content: string;
@@ -93,6 +100,7 @@ export interface Message {
 
 export interface Evaluation {
   id: string;
+  _id?: string;
   sessionId: string;
   overallScore: number;
   competencyScores: Record<string, number>;

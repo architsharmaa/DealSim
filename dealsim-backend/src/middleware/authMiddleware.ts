@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-interface AuthRequest extends Request {
+export interface AuthRequest extends Request {
   userId?: string;
   organizationId?: string;
   role?: string;
@@ -23,4 +23,11 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
   } catch (err) {
     res.status(401).json({ message: 'Token is not valid' });
   }
+};
+
+export const adminOnly = (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (req.role !== 'organization_admin' && req.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied. Admins only.' });
+  }
+  next();
 };

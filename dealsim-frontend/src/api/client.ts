@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -39,8 +40,9 @@ class ApiClient {
         console.error('API Error:', message);
         
         if (error.response?.status === 401) {
-          // Handle unauthorized (e.g., clear token, redirect to login)
           localStorage.removeItem('auth_token');
+        } else {
+          toast.error(message);
         }
 
         return Promise.reject(error);
