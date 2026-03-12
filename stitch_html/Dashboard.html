@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DealSim | Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#307de8",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111821",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-item-active {
+            background-color: rgba(48, 125, 232, 0.1);
+            color: #307de8;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<div class="flex min-h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col fixed h-full z-20">
+<div class="p-6 flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">handshake</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">DealSim</h1>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg sidebar-item-active group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">play_circle</span>
+<span class="font-medium">Simulations</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-medium">Assignments</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-medium">Reports</span>
+</a>
+<div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-medium">Profile</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium">Settings</span>
+</a>
+</div>
+</nav>
+<div class="p-4 mt-auto">
+<div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
+<p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Team Plan</p>
+<p class="text-sm font-medium mb-3">Enterprise Access</p>
+<div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-3/4"></div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 ml-64 min-h-screen">
+<!-- Header -->
+<header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-10 px-8 flex items-center justify-between">
+<div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-1.5 w-96 border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-slate-500" placeholder="Search simulations or reports..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
+<div class="text-right">
+<p class="text-sm font-semibold">Alex Rivera</p>
+<p class="text-xs text-slate-500">Sales Manager</p>
+</div>
+<div class="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 bg-cover bg-center" data-alt="User profile portrait of Alex Rivera" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAxRBkS5-3MeeyIJv5o1_URwV9rZBrYN9Z2F094ayJPf8eyw-IpTly6apMO_hEnIZI9OojiWairGirVKc88rrdh1Xy849RExi-6HIAL7Kd56_DmusIXSa7VFTVvZvodMEpbU5ce9nXQMLlroDz40E0pYQlsbjGd9jSeg1mcgBcpcrXahU_hvu1XNjwkLwFStWJ9TLa74Fk4WCjf-ZIlQ99oWCBvOlgh0SYlpxGp0TN_nrTae6YEdxZ3vkBqGS_02N7jeL0urwf74uk')"></div>
+</div>
+</div>
+</header>
+<div class="p-8 max-w-7xl mx-auto">
+<!-- Welcome Header -->
+<div class="mb-8">
+<h2 class="text-3xl font-bold tracking-tight">Welcome back, Alex</h2>
+<p class="text-slate-500 mt-1">You have 3 active assignments due this week. Your performance is up 12% from last month.</p>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-4">
+<span class="text-slate-500 text-sm font-medium uppercase tracking-wider">Avg Score</span>
+<div class="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+</div>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-bold">88%</span>
+<span class="text-emerald-500 text-sm font-semibold pb-1">+5.2%</span>
+</div>
+<p class="text-xs text-slate-400 mt-2">vs 83.6% last month</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-4">
+<span class="text-slate-500 text-sm font-medium uppercase tracking-wider">Sessions Completed</span>
+<div class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+</div>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-bold">24</span>
+<span class="text-slate-400 text-sm font-semibold pb-1">this period</span>
+</div>
+<p class="text-xs text-slate-400 mt-2">Target: 30 sessions</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-4">
+<span class="text-slate-500 text-sm font-medium uppercase tracking-wider">Skill Growth</span>
+<div class="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600">
+<span class="material-symbols-outlined">bolt</span>
+</div>
+</div>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-bold">+12%</span>
+<span class="text-emerald-500 text-sm font-semibold pb-1">+2%</span>
+</div>
+<p class="text-xs text-slate-400 mt-2">Negotiation efficiency improved</p>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+<!-- Assigned Simulations Section -->
+<div class="xl:col-span-2">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xl font-bold">Assigned Simulations</h3>
+<a class="text-primary text-sm font-semibold hover:underline" href="#">View all</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Simulation Card 1 -->
+<div class="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:border-primary/50 transition-all">
+<div class="h-2 bg-primary"></div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 bg-cover bg-center" data-alt="AI persona portrait for Marcus Chen" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBKqrGAHIuSagU3zNU4V5TRZip0ud5epCHOfwhC6gQ_UENlKpMm74T-Ov4BfZltHvjXpkYVWfSItWWwVFThFK8Gc6ksmMQxpj-k6m2DpGpdKBDLAUq-2Do2F_3A6howDwvX9HcXPXIJKleEKyXd1z4ol8lQHijzUE2F0M2m5C_UeWrrocIs7VaYq-47rGR-WR6DtlQWPaG7L2zKveKkwiHa-CDykKArgW5Z1ANo6QDNghuUMmQCbXpYxBOU8f3FQ_bz_4f2Jc9asMM')"></div>
+<div>
+<h4 class="font-bold">Marcus Chen</h4>
+<p class="text-xs text-slate-500 uppercase font-medium">VP of Procurement</p>
+</div>
+</div>
+<span class="px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-bold uppercase">Expert</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Negotiate a 15% expansion contract for the APAC region. Focus on long-term commitment.</p>
+<div class="flex items-center justify-between">
+<div class="flex gap-2 text-xs text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 15m</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">psychology</span> Medium</span>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all transform active:scale-95 shadow-sm shadow-primary/20">
+                                        Start
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Simulation Card 2 -->
+<div class="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:border-primary/50 transition-all">
+<div class="h-2 bg-slate-200 dark:bg-slate-700"></div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 bg-cover bg-center" data-alt="AI persona portrait for Sarah Jenkins" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBI7W9LDK2UKaJ79CJZ1B_NwPOn3fqu1wD16BI1MUuV4IiQtV8wDgTQ3xsU6r2-yebzPqOjOtBb1BvUXxKJOYMYz8GP3MSwZ_vrGLXeN7WeEkxB7X9vLOIQDL3ZbWdW8Ya9UifXTpQiv0PiD1xw0BjAuBu3eQjqGNDj6EuT_1YiYVmwQUAYvvPMftJacnO69tlxou0q1XaIREisWuHP0kAT0wFWXMJSKr1Wy-x8VZ2uytnfb0qFbPMsixuQtQYGOSQO4Vech-D8yMY')"></div>
+<div>
+<h4 class="font-bold">Sarah Jenkins</h4>
+<p class="text-xs text-slate-500 uppercase font-medium">CMO at TechFlow</p>
+</div>
+</div>
+<span class="px-2 py-1 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase">Beginner</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Initial discovery call for the new marketing automation module. Overcome budget objections.</p>
+<div class="flex items-center justify-between">
+<div class="flex gap-2 text-xs text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 10m</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">psychology</span> Easy</span>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all transform active:scale-95 shadow-sm shadow-primary/20">
+                                        Start
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Simulation Card 3 -->
+<div class="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:border-primary/50 transition-all">
+<div class="h-2 bg-slate-200 dark:bg-slate-700"></div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 bg-cover bg-center" data-alt="AI persona portrait for David Wright" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAlr1gjNsq8aet-zFfK2sX9JRqOOX-lwhfkNO_ybw1KAOr68Gvtexsx1fQmacVwNtNWiNX6ETrXD02_ajNdlwdeqxg3sGHB1RMOv1aPemvroxQZdaL0UaA9M6ObhBFWv6ze1V4YdZ3P1Yy2hyQXLXuRiaa1juAkXS-uDvLhP5i8u9xm175b5wNNSPK73S8PNn2RQUttBQebYmB-LYicQBis05jVQrhgwr25PEDZgAm_b07UF1t33wjBf1bKDxswgI7j1ktIjuusncI')"></div>
+<div>
+<h4 class="font-bold">David Wright</h4>
+<p class="text-xs text-slate-500 uppercase font-medium">Legal Counsel</p>
+</div>
+</div>
+<span class="px-2 py-1 rounded bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[10px] font-bold uppercase">Master</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Final legal review. Negotiate liability clauses and data privacy addendums.</p>
+<div class="flex items-center justify-between">
+<div class="flex gap-2 text-xs text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 25m</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">psychology</span> Hard</span>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all transform active:scale-95 shadow-sm shadow-primary/20">
+                                        Start
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recently Completed List -->
+<div>
+<h3 class="text-xl font-bold mb-6">Recently Completed</h3>
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<div class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Item 1 -->
+<div class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+<span class="text-sm font-bold">92%</span>
+</div>
+<div>
+<h5 class="text-sm font-bold">Renewal Negotiation</h5>
+<p class="text-[10px] text-slate-500 uppercase tracking-wide">2 hours ago</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<!-- Item 2 -->
+<div class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+<span class="text-sm font-bold">88%</span>
+</div>
+<div>
+<h5 class="text-sm font-bold">Sarah Jenkins (Call 1)</h5>
+<p class="text-[10px] text-slate-500 uppercase tracking-wide">Yesterday</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<!-- Item 3 -->
+<div class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
+<span class="text-sm font-bold">74%</span>
+</div>
+<div>
+<h5 class="text-sm font-bold">Pricing Objection Drill</h5>
+<p class="text-[10px] text-slate-500 uppercase tracking-wide">2 days ago</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<!-- Item 4 -->
+<div class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+<span class="text-sm font-bold">96%</span>
+</div>
+<div>
+<h5 class="text-sm font-bold">Closing Strategy</h5>
+<p class="text-[10px] text-slate-500 uppercase tracking-wide">3 days ago</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<div class="p-4 bg-slate-50 dark:bg-slate-800/30 text-center border-t border-slate-100 dark:border-slate-800">
+<button class="text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">View All History</button>
+</div>
+</div>
+<!-- Additional Context Card -->
+<div class="mt-6 bg-primary/5 dark:bg-primary/10 border border-primary/20 p-6 rounded-xl">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-primary">lightbulb</span>
+<h4 class="font-bold text-sm">Pro Tip</h4>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Focus on the <span class="font-bold">Empathy Mapping</span> module. Alex, your scores show you could improve your rapport building before jumping to technical specs.
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

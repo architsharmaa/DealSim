@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DealSim Admin - Management Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#307de8",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111821",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="relative flex h-screen w-full overflow-hidden">
+<!-- Left Sidebar -->
+<aside class="flex w-72 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark">
+<div class="flex flex-col gap-8 p-6">
+<div class="flex items-center gap-3">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined">auto_graph</span>
+</div>
+<div>
+<h2 class="text-lg font-bold leading-tight tracking-tight">DealSim</h2>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Admin Console</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-semibold">Dashboard</span>
+</a>
+<a class="group flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2.5 text-primary" href="#">
+<span class="material-symbols-outlined active-icon">play_circle</span>
+<span class="text-sm font-semibold">Simulations</span>
+</a>
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">content_copy</span>
+<span class="text-sm font-semibold">Assignments</span>
+</a>
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="text-sm font-semibold">Reports</span>
+</a>
+<div class="my-4 border-t border-slate-100 dark:border-slate-800"></div>
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-sm font-semibold">Profile</span>
+</a>
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-semibold">Settings</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6 border-t border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-primary/20 bg-cover bg-center border-2 border-primary/30" data-alt="Admin user profile avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDXG0EAoRhYEbs3BGbJtQhyH9FclrMQj7YDNBkB_AxlPrp2hiAnu-oic2mY-wSj0VKrVJCyzJiiIxw0_S9CggR7FddHOplxKjRyEEtCcyGbOvuCqvFbEVn5H2gG1KsCFgeWkZ1-oSN03Zj9k6_P1lMTbQ2tcrYVI_SKePaK4tob2eToeT--_fMP87pkNx7u1j0Wy5J5qtPXMqmdcsCoLIPTqp06h2vtdOEc-s6N5Mc6v-HUFUBYYPbqZ2x3jsAOeR1i9dTivnl-mZM')"></div>
+<div class="flex flex-col">
+<span class="text-sm font-bold truncate max-w-[140px]">Marcus Thorne</span>
+<span class="text-xs text-slate-500">Super Admin</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex flex-1 flex-col overflow-y-auto">
+<!-- Top Header -->
+<header class="flex h-20 items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-10 shrink-0">
+<div class="relative w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full rounded-xl border-none bg-slate-100 dark:bg-slate-800 py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary placeholder:text-slate-500" placeholder="Search personas or simulations..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-primary/90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-lg">add</span>
+<span>Create New Simulation</span>
+</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<div class="p-10 max-w-7xl">
+<!-- Page Title -->
+<div class="mb-8">
+<h1 class="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">Manage Simulations</h1>
+<p class="mt-2 text-slate-500 dark:text-slate-400 max-w-2xl">Configure your simulation environments by managing personas, business contexts, and grading rubrics for AI-driven deal scenarios.</p>
+</div>
+<!-- Tabs -->
+<div class="mb-8 flex border-b border-slate-200 dark:border-slate-800">
+<button class="border-b-2 border-primary px-6 py-4 text-sm font-bold text-primary">
+                        Personas
+                    </button>
+<button class="border-b-2 border-transparent px-6 py-4 text-sm font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
+                        Contexts
+                    </button>
+<button class="border-b-2 border-transparent px-6 py-4 text-sm font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
+                        Rubrics
+                    </button>
+</div>
+<!-- Filters & Stats (Optional for visual depth) -->
+<div class="mb-6 flex items-center justify-between">
+<div class="flex gap-2">
+<span class="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-bold text-slate-600 dark:text-slate-400">48 Total Personas</span>
+<span class="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">12 Recently Active</span>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span> Filter
+                        </button>
+<button class="flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-sm">sort</span> Sort
+                        </button>
+</div>
+</div>
+<!-- Persona Grid -->
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+<!-- Persona Card 1 -->
+<div class="group flex flex-col overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark shadow-sm hover:shadow-md transition-shadow">
+<div class="relative h-48 w-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<img alt="Persona" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Professional woman in a business setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8-B5kvww_ONrkuYRop1AisBFwLp2xzZ8Csj9OIDPBC-Hur0juReTf5zvy9IhNGjrsIL3Rtw9lfN2rqf3cG-R97pmeVjAV0UAY5mvUU8RHusJrop7NacwiUzz_9tUPt_bXI-ej33TG4F1i59G3iKCao_hqS_6LIXk0BNncR0hhEbH25tt87HTZXgu4-sc0B9s0Y1r11p9xzI70hXCqFGo-bh-xPXQ0671_D1hP0OhwPBK19eA1rnp9nfBchWv9cItkDipeuR57SUk"/>
+<div class="absolute bottom-3 left-3">
+<span class="rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white">High Value</span>
+</div>
+</div>
+<div class="flex flex-1 flex-col p-4">
+<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Alex Rivera</h3>
+<div class="mt-1 flex flex-col gap-0.5">
+<div class="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">business_center</span>
+<span>Tech Industry</span>
+</div>
+<div class="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">psychology</span>
+<span>Analytical</span>
+</div>
+</div>
+<div class="mt-6 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+<button class="flex items-center gap-1 text-sm font-bold text-primary hover:underline">
+<span class="material-symbols-outlined text-base">edit</span> Edit
+                                </button>
+<button class="flex items-center gap-1 text-sm font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined text-base">content_copy</span> Duplicate
+                                </button>
+</div>
+</div>
+</div>
+<!-- Persona Card 2 -->
+<div class="group flex flex-col overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark shadow-sm hover:shadow-md transition-shadow">
+<div class="relative h-48 w-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<img alt="Persona" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Confident businessman in suit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhAvYnRamXrsodtwgm_-w06zfucQVyfh6lyqPPVZGB7L-juxzTQLtrSHfsDrttioI5RYUZa_k29CynOHm3V1MV1bCSpb58yII-KCd3XaR7-V4ckDDcm02azOmoAUsKmvQyRm-2FcQLkPwGl5FCy3shM9AshSRtzFvgUiDcNq18K6BvH4lXm_UjGZ8NyOdYXK_ddNcrC34Z06RMC_8-Yre-AR2GZ3kJcjE5emvlbkTXJTBfYLzB1MxQT1GlmLgEnJqT8RY_JAP3NYs"/>
+<div class="absolute bottom-3 left-3">
+<span class="rounded-full bg-slate-800/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white">Mid Market</span>
+</div>
+</div>
+<div class="flex flex-1 flex-col p-4">
+<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Jordan Smith</h3>
+<div class="mt-1 flex flex-col gap-0.5">
+<div class="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">shopping_cart</span>
+<span>Retail Industry</span>
+</div>
+<div class="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">bolt</span>
+<span>Assertive</span>
+</div>
+</div>
+<div class="mt-6 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+<button class="flex items-center gap-1 text-sm font-bold text-primary hover:underline">
+<span class="material-symbols-outlined text-base">edit</span> Edit
+                                </button>
+<button class="flex items-center gap-1 text-sm font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined text-base">content_copy</span> Duplicate
+                                </button>
+</div>
+</div>
+</div>
+<!-- Persona Card 3 -->
+<div class="group flex flex-col overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark shadow-sm hover:shadow-md transition-shadow">
+<div class="relative h-48 w-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<img alt="Persona" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Thoughtful man with glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnLTdTaAXq9w4L-JxIMON0hcg10okhoL63ZOCk14NFOMKvUSWVEOwKZ1zG-KTd4Aw1DhQIJXFU5j-PCYt3ayILCD9G5ejnBoEurSYyQFe3pMC8uLqpgK5ANdcxcv37DY-FsBa_aKkLkry2KkDGI4H3-knbB60SkrGNfdYkYSLmp7fljejPY-N1wMzNYIUBb429B91sq60KVDzuOEAx1cYQ1iwgsjunvRr7O6OL8btpjcgCyoxlmylDqtZtY8ULLbKtqFgQ2DFPbn8"/>
+<div class="absolute bottom-3 left-3">
+<span class="rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white">Enterprise</span>
+</div>
+</div>
+<div class="flex flex-1 flex-col p-4">
+<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Casey Chen</h3>
+<div class="mt-1 flex flex-col gap-0.5">
+<div class="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">account_balance</span>
+<span>Finance Industry</span>
+</div>
+<div class="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">question_mark</span>
+<span>Skeptical</span>
+</div>
+</div>
+<div class="mt-6 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+<button class="flex items-center gap-1 text-sm font-bold text-primary hover:underline">
+<span class="material-symbols-outlined text-base">edit</span> Edit
+                                </button>
+<button class="flex items-center gap-1 text-sm font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined text-base">content_copy</span> Duplicate
+                                </button>
+</div>
+</div>
+</div>
+<!-- Persona Card 4 -->
+<div class="group flex flex-col overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark shadow-sm hover:shadow-md transition-shadow">
+<div class="relative h-48 w-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<img alt="Persona" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Smiling professional healthcare worker" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAn5RIl5ombJ8trTM8-GP4TkVKAP3tsczi6U44TvYi_lJGIOmJLFQtKRgBzmXGfG2m9sL6sK64VbQ-WYsofcbmeti4HXZ46z4Lc2CG_UlYTB6V749DEd5g6badg6nff6y6s_dAlvg5HlCXd7RngkYfHb3hpbKSHNNy8R_j8DqeP5WKFTaWsr9VfVSFx4m2K8MRZVnfsj5lOXWXcAah3s0w2M_q_glg9pBGdrfiCy0GLbPOnTXQjFct0v76ndPDd1R-x4_WCZueIiVU"/>
+<div class="absolute bottom-3 left-3">
+<span class="rounded-full bg-green-500/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white">New</span>
+</div>
+</div>
+<div class="flex flex-1 flex-col p-4">
+<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Taylor Brooks</h3>
+<div class="mt-1 flex flex-col gap-0.5">
+<div class="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">medical_services</span>
+<span>Healthcare Industry</span>
+</div>
+<div class="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">handshake</span>
+<span>Cooperative</span>
+</div>
+</div>
+<div class="mt-6 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+<button class="flex items-center gap-1 text-sm font-bold text-primary hover:underline">
+<span class="material-symbols-outlined text-base">edit</span> Edit
+                                </button>
+<button class="flex items-center gap-1 text-sm font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined text-base">content_copy</span> Duplicate
+                                </button>
+</div>
+</div>
+</div>
+<!-- Add New Card Placeholder -->
+<button class="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 p-8 hover:border-primary hover:bg-primary/5 transition-all">
+<div class="flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-slate-800 text-slate-400 shadow-sm">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">Create New Persona</p>
+<p class="text-xs text-slate-500">Add a custom role with specific traits</p>
+</div>
+</button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

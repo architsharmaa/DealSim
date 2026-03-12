@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#307de8",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111821",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>DealSim Session Report</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 md:px-10 py-3">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8 flex items-center justify-center bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-primary">analytics</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em]">DealSim</h2>
+</div>
+<div class="flex flex-1 justify-end gap-3">
+<button class="flex items-center justify-center rounded-xl h-10 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+<button class="flex items-center justify-center rounded-xl h-10 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200 dark:border-slate-700" data-alt="User profile avatar placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDFZzW8o8866EkiKKajcHrtxPcAFbd8_ARBR3K6clYGeEywve90NMSpa_CK1Dm_vaTRRXywd1qH_eGTmaclwJP_3bcEYGbG0p4Z6fo5mGosVjcj8S5V_GBFKCYLiVzgcjbP_-yvWtzetdEh8ZBq0PicSk0pQExHn8Q1Ua0s3BAAy0rbkfQl83vZlE1b7-OPH0x1kgquPYDCoeOXl1Ixzw0IwWpyH75DmAFbkCM_8SQGJpeeRoXYaZo6eOsp84DOoptwk98gmpF4_Y8");'></div>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto w-full p-6 md:p-10 space-y-8">
+<!-- Header & Overall Score -->
+<div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+<div class="space-y-2">
+<h1 class="text-slate-900 dark:text-slate-100 text-4xl font-black leading-tight tracking-[-0.033em]">Session Report: Enterprise Sales Pitch</h1>
+<p class="text-slate-500 dark:text-slate-400 text-lg font-normal">Completed on Oct 24, 2023 • Duration: 14m 32s</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center rounded-xl h-12 px-6 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-bold hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined mr-2">refresh</span>
+                            Review Again
+                        </button>
+<button class="flex items-center justify-center rounded-xl h-12 px-6 bg-primary text-white text-sm font-bold hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined mr-2">download</span>
+                            Download PDF
+                        </button>
+</div>
+</div>
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Overall Score</p>
+<div class="flex items-baseline gap-2">
+<p class="text-slate-900 dark:text-slate-100 text-3xl font-bold">85/100</p>
+<span class="text-green-600 dark:text-green-400 text-sm font-bold">+5.2%</span>
+</div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Customer Sentiment</p>
+<p class="text-slate-900 dark:text-slate-100 text-3xl font-bold">Positive</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Key Objections</p>
+<p class="text-slate-900 dark:text-slate-100 text-3xl font-bold">3 Resolved</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Talk Ratio</p>
+<p class="text-slate-900 dark:text-slate-100 text-3xl font-bold">45/55</p>
+</div>
+</div>
+<!-- 3-Column Content Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Column 1: Competency Breakdown -->
+<div class="lg:col-span-3 space-y-6">
+<div class="rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 h-full">
+<h3 class="text-slate-900 dark:text-slate-100 font-bold mb-6">Competency Breakdown</h3>
+<div class="space-y-8">
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-slate-600 dark:text-slate-400 font-medium">Empathy</span>
+<span class="text-slate-900 dark:text-slate-100 font-bold">92%</span>
+</div>
+<div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-slate-600 dark:text-slate-400 font-medium">Product Knowledge</span>
+<span class="text-slate-900 dark:text-slate-100 font-bold">78%</span>
+</div>
+<div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 78%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-slate-600 dark:text-slate-400 font-medium">Objection Handling</span>
+<span class="text-slate-900 dark:text-slate-100 font-bold">85%</span>
+</div>
+<div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-slate-600 dark:text-slate-400 font-medium">Closing Technique</span>
+<span class="text-slate-900 dark:text-slate-100 font-bold">64%</span>
+</div>
+<div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="bg-primary/40 h-full rounded-full" style="width: 64%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 2: Transcript Viewer -->
+<div class="lg:col-span-5 space-y-6">
+<div class="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col h-[600px]">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<h3 class="text-slate-900 dark:text-slate-100 font-bold">Transcript Viewer</h3>
+<button class="text-primary text-sm font-bold">Search</button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-400">02:14</span>
+<span class="text-xs font-bold text-primary px-2 py-0.5 bg-primary/10 rounded">KEY MOMENT</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm"><span class="font-bold text-slate-900 dark:text-slate-100">AI Prospect:</span> "Our current solution is meeting our needs. Why should we consider a migration now?"</p>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-400">02:25</span>
+<span class="text-xs font-bold text-green-600 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 rounded">GOOD RESPONSE</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm"><span class="font-bold text-slate-900 dark:text-slate-100">You:</span> "I understand that stability is important. Many of our clients felt the same until they realized they were losing 15% efficiency on manual data entry that DealSim automates."</p>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-400">04:40</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm"><span class="font-bold text-slate-900 dark:text-slate-100">AI Prospect:</span> "Tell me more about the security protocols for enterprise deployments."</p>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-400">05:02</span>
+<span class="text-xs font-bold text-yellow-600 px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 rounded">HINT USED</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm"><span class="font-bold text-slate-900 dark:text-slate-100">You:</span> "We are SOC2 Type II compliant and offer end-to-end encryption for all data in transit and at rest."</p>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-400">08:15</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm"><span class="font-bold text-slate-900 dark:text-slate-100">AI Prospect:</span> "That sounds impressive. What are the next steps for a pilot program?"</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 3: Summary & Takeaways -->
+<div class="lg:col-span-4 space-y-6">
+<div class="rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-6">
+<div>
+<h3 class="text-slate-900 dark:text-slate-100 font-bold mb-4">Summary</h3>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                                    The session was highly productive. You successfully navigated initial resistance by focusing on the unique ROI metrics of our automation suite. The prospect showed high interest in the security overview, though your explanation of the integration phase could be more concise. Overall, you controlled the tempo of the conversation well and secured a clear next step.
+                                </p>
+</div>
+<hr class="border-slate-100 dark:border-slate-800"/>
+<div>
+<h3 class="text-slate-900 dark:text-slate-100 font-bold mb-4">Key Takeaways</h3>
+<ul class="space-y-4">
+<li class="flex gap-3">
+<div class="size-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400">Strong use of social proof during the objection phase.</p>
+</li>
+<li class="flex gap-3">
+<div class="size-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400">Effective transition from discovery to product demonstration.</p>
+</li>
+<li class="flex gap-3">
+<div class="size-6 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-sm font-bold">priority_high</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400">Work on condensing the technical architecture pitch to under 2 minutes.</p>
+</li>
+<li class="flex gap-3">
+<div class="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-sm font-bold">lightbulb</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400">Next time, try asking about their current implementation timeline earlier.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- Recommendations/Next Steps -->
+<div class="rounded-xl p-6 bg-primary text-white space-y-4">
+<h3 class="font-bold text-lg">Recommended Training</h3>
+<p class="text-primary-100 text-sm">Based on your session, we recommend the "Advanced Objection Handling" module to increase your closing score.</p>
+<button class="w-full bg-white text-primary rounded-lg py-2 text-sm font-bold hover:bg-slate-50 transition-colors">Start Training</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

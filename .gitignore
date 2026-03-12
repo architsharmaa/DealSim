@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+dealsim-frontend/node_modules/
+
+# Build outputs
+dist/
+dealsim-frontend/dist/
+build.log
+npm.log
+build_utf8.log
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
