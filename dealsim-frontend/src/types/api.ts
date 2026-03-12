@@ -10,8 +10,21 @@ export interface User {
   email: string;
   fullName: string;
   avatarUrl?: string;
-  role: 'admin' | 'manager' | 'employee';
+  role: 'organization_admin' | 'org_employee' | 'admin' | 'manager' | 'employee';
   organizationId: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+export interface SignupPayload {
+  organizationName: string;
+  name: string;
+  email: string;
+  password: string;
+  role: 'organization_admin' | 'org_employee';
 }
 
 export interface Persona {
