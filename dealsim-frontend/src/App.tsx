@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppLayout } from './layout/AppLayout';
+import { ThemeProvider } from './context/ThemeContext';
 import { DashboardPage } from './pages/DashboardPage';
 import { SimulationsPage } from './pages/SimulationsPage';
 import { AssignmentsPage } from './pages/AssignmentsPage';
@@ -29,7 +30,8 @@ const ProfilePage = () => <div className="p-8"><h2 className="text-2xl font-bold
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
         <Toaster position="top-right" />
         <BrowserRouter>
           <Routes>
@@ -57,7 +59,8 @@ function App() {
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

@@ -16,3 +16,13 @@ build_utf8.log
 # OS files
 .DS_Store
 Thumbs.db
+
+# Secrets
+.env
+*.env.local
+client_secret_*.json
+
+# AI Service
+dealsim-ai-service/node_modules/
+dealsim-ai-service/dist/
+dealsim-ai-service/*.log
