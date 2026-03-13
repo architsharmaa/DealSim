@@ -14,4 +14,10 @@ export class EvaluationEngine {
       throw new Error('Failed to parse AI evaluation results');
     }
   }
+
+  static async analyzeSentiment(text: string): Promise<string> {
+    const prompt = PromptBuilder.buildSentimentPrompt(text);
+    const result = await LlmGateway.generateText(prompt);
+    return result.trim();
+  }
 }

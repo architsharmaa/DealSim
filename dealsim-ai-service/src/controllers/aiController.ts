@@ -38,3 +38,13 @@ export const evaluateSession = async (req: Request, res: Response, next: NextFun
     next(error);
   }
 };
+
+export const analyzeSentiment = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { text } = req.body;
+    const sentiment = await EvaluationEngine.analyzeSentiment(text);
+    res.json({ sentiment });
+  } catch (error) {
+    next(error);
+  }
+};

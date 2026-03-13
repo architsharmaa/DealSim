@@ -139,6 +139,7 @@ export const SessionPage = () => {
   const simulation = session?.simulationId as Simulation | undefined;
   const persona = simulation?.personaId as any;
   const context = simulation?.contextId as any;
+  const latestSnapshot = session?.analyticsSnapshots?.[session.analyticsSnapshots.length - 1];
 
   // Setup Modal
   if (showSetup) {
@@ -410,17 +411,82 @@ export const SessionPage = () => {
 
           {!session?.evaluation && !ending && (
             <div className="space-y-6">
-              <div className="p-6 rounded-[2.5rem] bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 shadow-sm">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Engagement Depth</p>
-                <div className="flex items-end gap-2">
-                  <span className="text-5xl font-black text-slate-900 dark:text-white">{session?.transcripts.length || 0}</span>
-                  <span className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-widest pl-1">turns</span>
+              {/* Live Analytics Dashboard */}
+              <div className="grid grid-cols-1 gap-4">
+                {/* Sentiment & Talk Ratio Row */}
+                <div className="flex gap-4">
+                  <div className="flex-1 p-6 rounded-[2.5rem] bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                       <span className="material-symbols-outlined text-sm">mood</span> Sentiment
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <span className={`text-2xl font-black uppercase tracking-tight ${
+                        latestSnapshot?.buyerSentiment === 'positive' ? 'text-emerald-500' :
+                        latestSnapshot?.buyerSentiment === 'negative' ? 'text-red-500' :
+                        'text-slate-900 dark:text-white'
+                      }`}>
+                        {latestSnapshot?.buyerSentiment || 'Neutral'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 p-6 rounded-[2.5rem] bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm">pie_chart</span> Talk Ratio
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-slate-900 dark:text-white">{latestSnapshot?.talkRatio || 0}%</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">seller</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* WPM & Monologue Row */}
+                <div className="p-6 rounded-[2.5rem] bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                  {latestSnapshot?.monologueFlag && (
+                    <div className="absolute top-0 right-0 bg-red-500 text-white text-[8px] font-black px-3 py-1 uppercase tracking-widest transform rotate-45 translate-x-4 translate-y-2">Monologue</div>
+                  )}
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">speed</span> Speaking Speed
+                  </p>
+                  <div className="flex items-end gap-2">
+                    <span className="text-5xl font-black text-slate-900 dark:text-white">{latestSnapshot?.wpm || 0}</span>
+                    <span className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-widest pl-1">wpm</span>
+                  </div>
+                </div>
+
+                {/* Filler Words */}
+                <div className="p-6 rounded-[2.5rem] bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 shadow-sm">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">warning</span> Filler Words (Live)
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {latestSnapshot?.fillerWords && Object.keys(latestSnapshot.fillerWords).length > 0 ? (
+                      Object.entries(latestSnapshot.fillerWords).map(([word, count]) => (
+                        <span key={word} className="px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-black rounded-lg border border-red-500/20 shadow-sm uppercase tracking-tighter">
+                          {word} ({count as any})
+                        </span>
+                      ))
+                    ) : (
+                      <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-black rounded-lg border border-emerald-500/20 shadow-sm uppercase tracking-tighter">
+                        Clean Speech
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="p-6 rounded-[2.5rem] bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 shadow-sm">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Session Duration</p>
-                <div className="flex items-end gap-2">
-                  <span className="text-5xl font-black text-slate-900 dark:text-white font-mono leading-none">{formatTime(elapsed)}</span>
+
+              {/* Session Core Info */}
+              <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Engagement Metadata</p>
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="p-4 rounded-3xl bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-800">
+                    <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Turns</p>
+                    <p className="text-xl font-black text-slate-900 dark:text-white">{session?.transcripts.length || 0}</p>
+                   </div>
+                   <div className="p-4 rounded-3xl bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-800">
+                    <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Time</p>
+                    <p className="text-xl font-black text-slate-900 dark:text-white font-mono">{formatTime(elapsed)}</p>
+                   </div>
                 </div>
               </div>
             </div>

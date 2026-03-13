@@ -36,4 +36,8 @@ Focus on the key events, buyer objections, and the outcome.
 Transcript: ${transcript}
 Return JSON: { "overallSummary": "...", "keyEvents": ["..."] }`;
   }
+
+  static buildSentimentPrompt(text: string) {
+    return PROMPTS.SENTIMENT_ANALYSIS_PROMPT.replace('{{text}}', text);
+  }
 }

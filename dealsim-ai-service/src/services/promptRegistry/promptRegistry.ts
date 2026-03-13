@@ -48,5 +48,11 @@ Return your evaluation in JSON format:
     { "index": number, "type": "KEY_MOMENT" | "GOOD_RESPONSE" | "IMPROVEMENT_NEED", "label": "string" }
   ]
 }
+`,
+  SENTIMENT_ANALYSIS_PROMPT: `
+Classify the sentiment of the following buyer response in a sales conversation.
+Response: "{{text}}"
+
+Return ONLY one of the following words: Positive, Neutral, Negative.
 `
 };

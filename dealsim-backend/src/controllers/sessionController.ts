@@ -7,6 +7,7 @@ import Context from '../models/Context.js';
 import Rubric from '../models/Rubric.js';
 import Assignment from '../models/Assignment.js';
 import axios from 'axios';
+import * as AnalyticsEngine from '../services/analyticsEngine.js';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:3001';
 
@@ -191,6 +192,28 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
       timestamp: new Date(),
     });
 
+    // 4. Real-time Analytics Snapshot
+    let buyerSentiment: 'positive' | 'neutral' | 'negative' = 'neutral';
+    try {
+      const sentimentResponse = await axios.post(`${AI_SERVICE_URL}/ai/analyze-sentiment`, { text: aiReply });
+      const rawSentiment = sentimentResponse.data.sentiment.toLowerCase();
+      if (rawSentiment.includes('positive')) buyerSentiment = 'positive';
+      else if (rawSentiment.includes('negative')) buyerSentiment = 'negative';
+    } catch (sentError) {
+      console.error('[Session] Sentiment analysis error:', sentError);
+    }
+
+    const snapshot = {
+      timestamp: new Date(),
+      wpm: AnalyticsEngine.calculateWordsPerMinute(session.transcripts, session.startedAt),
+      fillerWords: AnalyticsEngine.detectFillerWords(message),
+      talkRatio: AnalyticsEngine.calculateTalkRatio(session.transcripts),
+      monologueFlag: AnalyticsEngine.detectMonologue(message),
+      buyerSentiment
+    };
+
+    session.analyticsSnapshots.push(snapshot);
+    session.markModified('analyticsSnapshots');
     await session.save();
 
     // Re-fetch populated session to ensure frontend has all data

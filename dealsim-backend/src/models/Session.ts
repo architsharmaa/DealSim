@@ -46,7 +46,7 @@ const SessionSchema = new mongoose.Schema({
   status: { type: String, enum: ['active', 'completed', 'evaluated', 'abandoned'], default: 'active' },
   transcripts: [TranscriptEntrySchema],
   conversationState: { type: mongoose.Schema.Types.Mixed, default: {} },
-  analyticsSnapshots: [{ type: mongoose.Schema.Types.Mixed }],
+  analyticsSnapshots: [{ type: mongoose.Schema.Types.Mixed, default: [] }],
   summary: { type: mongoose.Schema.Types.Mixed, default: null },
   evaluation: { type: mongoose.Schema.Types.Mixed, default: null },
   startedAt: { type: Date, default: Date.now },

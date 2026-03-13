@@ -47,4 +47,19 @@ export class LlmGateway {
       throw error;
     }
   }
+
+  static async generateText(prompt: string): Promise<string> {
+    try {
+      const completion = await openai.chat.completions.create({
+        model: MODELS.CONVERSATION,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.3,
+        max_tokens: 50,
+      });
+      return completion.choices[0]?.message?.content || '';
+    } catch (error) {
+      console.error('[LlmGateway generateText Error]:', error);
+      throw error;
+    }
+  }
 }
