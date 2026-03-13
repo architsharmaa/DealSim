@@ -23,16 +23,33 @@ export const ReportsPage = () => {
       .trim();
   };
 
-  const { data: sessions, isLoading: sessionsLoading } = useQuery<Session[]>({
-    queryKey: ['user-sessions'],
-    queryFn: () => apiClient.get('/sessions'),
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'evaluated': return 'text-emerald-500 bg-emerald-500/10';
+      case 'active': return 'text-blue-500 bg-blue-500/10';
+      case 'completed': return 'text-amber-500 bg-amber-500/10';
+      default: return 'text-slate-400 bg-slate-400/10';
+    }
+  };
+
+  const { data: directSession, isLoading: directLoading } = useQuery<Session>({
+    queryKey: ['session', sessionId],
+    queryFn: () => apiClient.get(`/sessions/${sessionId}`),
+    enabled: !!sessionId
   });
 
-  const session = sessionId 
-    ? sessions?.find(s => (s._id || (s as any).id) === sessionId)
-    : sessions?.[0];
+  const targetUserId = directSession?.userId || undefined;
 
-  if (sessionsLoading) {
+  const { data: sessions, isLoading: sessionsLoading } = useQuery<Session[]>({
+    queryKey: ['user-sessions', targetUserId],
+    queryFn: () => apiClient.get(`/sessions${targetUserId ? `?userId=${targetUserId}` : ''}`),
+    enabled: !!targetUserId || !sessionId
+  });
+
+  const session = sessionId ? directSession : sessions?.[0];
+  const isLoading = (sessionId ? directLoading : sessionsLoading);
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -133,7 +150,25 @@ export const ReportsPage = () => {
         </div>
       </div>
 
-      {/* AI Coaching Insights Section */}
+      {session.status === 'active' && (
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-3xl p-8 flex flex-col items-center text-center gap-4 animate-in fade-in slide-in-from-top-4 duration-1000">
+          <div className="size-16 rounded-full bg-blue-500 text-white flex items-center justify-center animate-pulse">
+            <span className="material-symbols-outlined text-3xl">sensors</span>
+          </div>
+          <div>
+            <h2 className="text-2xl font-black text-blue-900 dark:text-blue-100">Simulation In Progress</h2>
+            <p className="text-blue-700/70 dark:text-blue-300/60 max-w-lg mx-auto mt-2">
+              This session is currently live. Detailed sales diagnostics, skill scores, and AI coaching insights will be automatically generated as soon as the participant ends the session.
+            </p>
+          </div>
+          <div className="flex gap-4 mt-2">
+             <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/20 rounded-xl text-blue-700 dark:text-blue-300 text-xs font-black uppercase tracking-widest">
+                <span className="size-2 rounded-full bg-blue-500 animate-ping"></span>
+                Live Transcript Monitoring
+             </div>
+          </div>
+        </div>
+      )}
       {session.coachingInsights && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-4 duration-1000">
           <div className="lg:col-span-2 rounded-2xl p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-8">
@@ -274,29 +309,87 @@ export const ReportsPage = () => {
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Overall Score</p>
           <div className="flex items-baseline gap-2">
             <p className="text-slate-900 dark:text-slate-100 text-3xl font-bold">
-              {evaluation && evaluation.overallScore !== undefined ? evaluation.overallScore : '—'}/100
+              {evaluation?.overallScore !== undefined ? `${evaluation.overallScore}/100` : (session.status === 'active' ? 'Live' : '—')}
             </p>
-            <span className="text-green-600 dark:text-green-400 text-sm font-bold">+5.2%</span>
           </div>
         </div>
         <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Customer Sentiment</p>
-          <p className="text-slate-900 dark:text-slate-100 text-3xl font-bold">{evaluation?.sentiment || 'Positive'}</p>
+          <p className="text-slate-900 dark:text-slate-100 text-3xl font-bold">{evaluation?.sentiment || (session.status === 'active' ? 'Analyzing...' : '—')}</p>
         </div>
         <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Key Objections</p>
-          <p className="text-slate-900 dark:text-slate-100 text-3xl font-bold">{evaluation?.objectionsResolved !== undefined ? evaluation.objectionsResolved : 0} Resolved</p>
+          <p className="text-slate-900 dark:text-slate-100 text-3xl font-bold">{evaluation?.objectionsResolved !== undefined ? `${evaluation.objectionsResolved} Resolved` : (session.status === 'active' ? 'Tracking...' : '—')}</p>
         </div>
         <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Talk Ratio</p>
           <p className="text-slate-900 dark:text-slate-100 text-3xl font-bold">
-            {evaluation?.talkRatio ? `${evaluation.talkRatio.seller}/${evaluation.talkRatio.buyer}` : '45/55'}
+            {evaluation?.talkRatio ? `${evaluation.talkRatio.seller}/${evaluation.talkRatio.buyer}` : (session.status === 'active' ? 'Calculating...' : '—')}
           </p>
         </div>
       </div>
 
-      {/* 3-Column Content Layout */}
+      {/* 4-Column Diagnostic Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Column 0: Conversation Timeline */}
+        <div className="lg:col-span-3 space-y-6">
+          <div className="rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 h-full overflow-visible">
+            <h3 className="text-slate-900 dark:text-slate-100 font-bold mb-8 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-xl">timeline</span>
+              Session Timeline
+            </h3>
+            <div className="relative space-y-10 before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-primary/50 before:via-slate-200 dark:before:via-slate-800 before:to-transparent">
+              {session.keyEvents && session.keyEvents.length > 0 ? (
+                session.keyEvents.map((event, i) => (
+                  <div key={i} className="relative flex items-center justify-between gap-6 group">
+                    <div className="flex items-center gap-4">
+                      {/* Event Marker */}
+                      <div className={`absolute left-0 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white dark:border-slate-900 shadow-md transition-all duration-300 group-hover:scale-110 z-10 ${
+                        event.type === 'objection_raised' ? 'bg-red-500 text-white border-red-100 dark:border-red-900/40' :
+                        event.type === 'closing_attempt' ? 'bg-green-500 text-white border-green-100 dark:border-green-900/40' :
+                        event.type === 'discovery_question' ? 'bg-primary text-white border-primary/20' :
+                        'bg-slate-800 text-white border-slate-700'
+                      }`}>
+                        <span className="material-symbols-outlined text-lg">
+                          {event.type === 'discovery_question' ? 'help' :
+                           event.type === 'objection_raised' ? 'block' :
+                           event.type === 'value_proposition' ? 'verified' :
+                           event.type === 'pricing_discussion' ? 'payments' : 'handshake'}
+                        </span>
+                      </div>
+                      
+                      {/* Event Content */}
+                      <div className="ml-12 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black text-slate-400 tabular-nums">
+                            {formatTranscriptTime(event.timestamp)}
+                          </span>
+                          <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${
+                            event.type === 'objection_raised' ? 'bg-red-500/10 text-red-500' :
+                            event.type === 'closing_attempt' ? 'bg-green-500/10 text-green-500' :
+                            event.type === 'discovery_question' ? 'bg-primary/10 text-primary' :
+                            'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                          }`}>
+                            {event.type.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-700 dark:text-slate-100 font-bold leading-snug">
+                          {event.message}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="pl-12 py-4">
+                  <p className="text-xs text-slate-400 italic">No milestones detected.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Column 1: Competency Breakdown */}
         <div className="lg:col-span-3 space-y-6">
           <div className="rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 h-full">
@@ -323,13 +416,13 @@ export const ReportsPage = () => {
         </div>
 
         {/* Column 2: Transcript Viewer */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col h-[600px]">
+        <div className="lg:col-span-3 space-y-6">
+          <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col min-h-[600px]">
             <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
               <h3 className="text-slate-900 dark:text-slate-100 font-bold">Transcript Viewer</h3>
               <button className="text-primary text-sm font-bold">Search</button>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 max-h-[600px] overflow-y-auto p-6 space-y-6 custom-scrollbar">
               {session.transcripts.map((t, i) => {
                 const highlight = (evaluation as any)?.highlights?.find((h: any) => h.index === i);
                 return (
@@ -348,9 +441,9 @@ export const ReportsPage = () => {
                     </div>
                     <p className="text-slate-600 dark:text-slate-400 text-sm">
                       <span className="font-bold text-slate-900 dark:text-slate-100">
-                        {t.speaker === 'seller' ? 'You' : (persona?.name || 'AI Prospect')}:
-                      </span>{' '}
-                      {t.content}
+                        {t.speaker === 'seller' ? 'You' : (persona?.name || 'AI Prospect')}
+                      </span>:{' '}
+                      {t.content.replace(new RegExp(`^${persona?.name}:\\s*`, 'i'), '')}
                     </p>
                   </div>
                 );
@@ -360,12 +453,16 @@ export const ReportsPage = () => {
         </div>
 
         {/* Column 3: Summary & Takeaways */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           <div className="rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-6">
             <div>
               <h3 className="text-slate-900 dark:text-slate-100 font-bold mb-4">Summary</h3>
               <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                {cleanSummary(session.summary?.overallSummary || 'The session was highly productive.')}
+                {session.summary?.overallSummary 
+                  ? cleanSummary(session.summary.overallSummary)
+                  : (session.status === 'active' 
+                      ? 'AI summary will be generated once the session is completed and evaluated.' 
+                      : 'No summary available for this session.')}
               </p>
             </div>
             <hr className="border-slate-100 dark:border-slate-800"/>
@@ -399,12 +496,20 @@ export const ReportsPage = () => {
               </ul>
             </div>
           </div>
-          {/* Recommendations/Next Steps */}
-          <div className="rounded-xl p-6 bg-primary text-white space-y-4 shadow-lg shadow-primary/20">
-            <h3 className="font-bold text-lg">Recommended Training</h3>
-            <p className="text-primary-100 text-sm opacity-90">Based on your session, we recommend the "Advanced Objection Handling" module to increase your closing score.</p>
-            <button className="w-full bg-white text-primary rounded-lg py-2 text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm">Start Training</button>
-          </div>
+        </div>
+      </div>
+
+      {/* Debug Footer */}
+      <div className="pt-10 pb-6 border-t border-slate-100 dark:border-slate-800 flex flex-wrap justify-between items-center gap-4 opacity-30 hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-4">
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Session ID</div>
+          <code className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-md text-[10px] text-slate-500">{session._id}</code>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</div>
+          <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${getStatusColor(session.status)}`}>
+            {session.status}
+          </span>
         </div>
       </div>
     </div>

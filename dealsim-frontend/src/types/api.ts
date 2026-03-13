@@ -114,6 +114,12 @@ export interface Session {
     dealRiskScore: number;
     dealRiskReason: string;
   } | null;
+  keyEvents?: Array<{
+    type: 'discovery_question' | 'objection_raised' | 'value_proposition' | 'pricing_discussion' | 'closing_attempt';
+    message: string;
+    speaker: string;
+    timestamp: string | Date;
+  }>;
   startedAt: string;
   endedAt?: string;
 }
@@ -160,12 +166,32 @@ export interface Assignment {
   dueDate?: string;
   completedAt?: string;
   score?: number;
+  sessionId?: string;
 }
 
 export interface DashboardStats {
   avgScore: number;
+  scoreVariance: string;
+  lastMonthAvgDisplay: number;
   sessionsCompleted: number;
   skillGrowth: number;
   recentSessions: Session[];
   assignedSimulations: Assignment[];
+}
+
+export interface EmployeePerformance {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatarUrl?: string;
+  avgScore: number;
+  sessionsCompleted: number;
+  skillGrowth: number;
+}
+
+export interface TeamPerformance {
+  teamAvgScore: number;
+  totalCompletions: number;
+  employeePerformance: EmployeePerformance[];
 }

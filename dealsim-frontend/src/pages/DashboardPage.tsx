@@ -47,11 +47,11 @@ export const DashboardPage = () => {
           </div>
           <div className="flex items-end gap-3">
             <span className="text-5xl font-black text-slate-900 dark:text-white">{stats?.avgScore || 0}%</span>
-            <span className="text-emerald-500 text-sm font-black mb-2 flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">arrow_upward</span> 5.2%
+            <span className={`${(Number(stats?.scoreVariance) || 0) >= 0 ? 'text-emerald-500' : 'text-red-500'} text-sm font-black mb-2 flex items-center gap-1`}>
+              <span className="material-symbols-outlined text-sm">{(Number(stats?.scoreVariance) || 0) >= 0 ? 'arrow_upward' : 'arrow_downward'}</span> {Math.abs(Number(stats?.scoreVariance || 0))}%
             </span>
           </div>
-          <p className="text-[11px] font-bold text-slate-400 mt-3">vs 83.6% last month</p>
+          <p className="text-[11px] font-bold text-slate-400 mt-3 tabular-nums">vs {stats?.lastMonthAvgDisplay || 0}% last month</p>
         </div>
 
         <div className="bg-white dark:bg-slate-950 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none hover:scale-[1.02] transition-all">
@@ -190,16 +190,16 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Pro Tip Sidebar */}
-        <div className="space-y-6">
+        {/* AI Insights Sidebar */}
+        <div className="space-y-6 flex flex-col">
           <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">AI Insights</h3>
-          <div className="bg-gradient-to-br from-primary to-indigo-600 p-8 rounded-[2.5rem] text-white shadow-2xl shadow-primary/20 h-full flex flex-col justify-center">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="material-symbols-outlined text-3xl">lightbulb</span>
-              <h4 className="font-black text-[10px] uppercase tracking-widest">Flight Instructor Memo</h4>
+          <div className="bg-gradient-to-br from-primary to-indigo-600 p-6 rounded-[2rem] text-white shadow-xl shadow-primary/20 flex-1 flex flex-col justify-center">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="material-symbols-outlined text-2xl">lightbulb</span>
+              <h4 className="font-black text-[9px] uppercase tracking-widest opacity-80">Instructor Memo</h4>
             </div>
-            <p className="text-sm font-bold leading-relaxed opacity-90 italic">
-              "Focus on rapport building. {currentUser?.fullName?.split(' ')[0] || 'Archit'}, your last evaluation showed you jumped into technicals too early. Soften the entry."
+            <p className="text-xs font-bold leading-relaxed italic">
+              "Focus on rapport building. {currentUser?.fullName?.split(' ')[0] || 'Archit'}, your last evaluation showed you jumped into technicals too early."
             </p>
           </div>
         </div>

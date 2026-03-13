@@ -5,5 +5,6 @@ import * as analyticsController from '../controllers/analyticsController.js';
 const router = express.Router();
 
 router.get('/dashboard-stats', authMiddleware, analyticsController.getDashboardStats);
+router.get('/team-performance', authMiddleware, analyticsController.getTeamPerformance);
 
 export default router;

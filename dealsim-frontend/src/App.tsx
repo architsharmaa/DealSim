@@ -15,6 +15,7 @@ import { SignupPage } from './pages/SignupPage';
 import { PersonasPage } from './pages/PersonasPage';
 import { ContextsPage } from './pages/ContextsPage';
 import { RubricsPage } from './pages/RubricsPage';
+import { TeamPerformancePage } from './pages/TeamPerformancePage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +47,7 @@ function App() {
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="simulations" element={<SimulationsPage />} />
                 <Route path="assignments" element={<AssignmentsPage />} />
+                <Route path="team-performance" element={<TeamPerformancePage />} />
                 <Route path="reports/:sessionId?" element={<ReportsPage />} />
                 <Route path="personas" element={<PersonasPage />} />
                 <Route path="contexts" element={<ContextsPage />} />

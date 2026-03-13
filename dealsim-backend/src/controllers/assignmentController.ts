@@ -2,6 +2,7 @@ import type { Response, NextFunction } from 'express';
 import type { AuthRequest } from '../types/index.js';
 import Assignment from '../models/Assignment.js';
 import User from '../models/User.js';
+import Session from '../models/Session.js';
 
 export const createAssignment = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -45,9 +46,40 @@ export const getAssignments = async (req: AuthRequest, res: Response, next: Next
         path: 'simulationId',
         select: 'name'
       })
-      .sort({ assignedDate: -1 });
+      .sort({ assignedDate: -1 })
+      .lean();
 
-    res.json(assignments);
+    // Map sessions to assignments
+    const assignmentsWithSessions = await Promise.all(assignments.map(async (a) => {
+      // Prioritize evaluated sessions for the assignment link
+      let session = await Session.findOne({ 
+        assignmentId: a._id, 
+        status: 'evaluated' 
+      }).select('_id');
+      
+      // If no evaluated session found directly, look for any linked session (e.g. active)
+      if (!session) {
+        session = await Session.findOne({ assignmentId: a._id }).select('_id');
+      }
+      
+      // Fallback: if no direct link, find most recent evaluated session for this user/simulation
+      if (!session) {
+        session = await Session.findOne({ 
+          userId: a.userId?._id || a.userId, 
+          simulationId: a.simulationId?._id || a.simulationId,
+          status: 'evaluated'
+        })
+        .sort({ endedAt: -1 })
+        .select('_id');
+      }
+
+      return {
+        ...a,
+        sessionId: session?._id || null
+      };
+    }));
+
+    res.json(assignmentsWithSessions);
   } catch (error) {
     next(error);
   }

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../api/client';
 import type { Assignment, User, Simulation } from '../types/api';
@@ -7,6 +8,7 @@ import toast from 'react-hot-toast';
 
 export const AssignmentsPage = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState('');
@@ -207,14 +209,26 @@ export const AssignmentsPage = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      {isAdmin && (
-                        <button 
-                          onClick={() => deleteMutation.mutate(assignment._id)}
-                          className="text-slate-400 hover:text-red-500 transition-colors"
-                        >
-                          <span className="material-symbols-outlined">delete</span>
-                        </button>
-                      )}
+                      <div className="flex items-center justify-end gap-2">
+                        {isAdmin && assignment.status === 'completed' && assignment.sessionId && (
+                          <button 
+                            onClick={() => navigate(`/reports/${assignment.sessionId}`)}
+                            className="text-primary hover:bg-primary/10 transition-all p-2 rounded-lg"
+                            title="View Report"
+                          >
+                            <span className="material-symbols-outlined text-xl">analytics</span>
+                          </button>
+                        )}
+                        {isAdmin && (
+                          <button 
+                            onClick={() => deleteMutation.mutate(assignment._id)}
+                            className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                            title="Retract Assignment"
+                          >
+                            <span className="material-symbols-outlined text-xl">delete</span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

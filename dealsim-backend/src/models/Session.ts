@@ -41,6 +41,12 @@ export interface ISession extends mongoose.Document {
     dealRiskScore: number;
     dealRiskReason: string;
   } | null;
+  keyEvents: Array<{
+    type: 'discovery_question' | 'objection_raised' | 'value_proposition' | 'pricing_discussion' | 'closing_attempt';
+    message: string;
+    speaker: string;
+    timestamp: Date;
+  }>;
   startedAt: Date;
   endedAt: Date | null;
 }
@@ -68,6 +74,12 @@ const SessionSchema = new mongoose.Schema({
   summary: { type: mongoose.Schema.Types.Mixed, default: null },
   evaluation: { type: mongoose.Schema.Types.Mixed, default: null },
   coachingInsights: { type: mongoose.Schema.Types.Mixed, default: null },
+  keyEvents: [{
+    type: { type: String, required: true },
+    message: { type: String, required: true },
+    speaker: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now }
+  }],
   startedAt: { type: Date, default: Date.now },
   endedAt: { type: Date, default: null },
 });

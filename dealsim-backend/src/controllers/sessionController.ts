@@ -6,9 +6,11 @@ import Persona from '../models/Persona.js';
 import Context from '../models/Context.js';
 import Rubric from '../models/Rubric.js';
 import Assignment from '../models/Assignment.js';
+import User from '../models/User.js';
 import axios from 'axios';
 import * as AnalyticsEngine from '../services/analyticsEngine.js';
 import * as ConversationStateEngine from '../services/conversationStateEngine.js';
+import * as EventExtractionEngine from '../services/eventExtractionEngine.js';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:3001';
 
@@ -56,16 +58,33 @@ export const startSession = async (req: AuthRequest, res: Response, next: NextFu
     const context = simulation.contextId as any;
 
     // 3. Create the session inheriting from the simulation
+    let linkedAssignmentId = assignmentId;
+    if (!linkedAssignmentId) {
+      // Proactively find an open assignment for this user and simulation
+      const openAssignment = await Assignment.findOne({ 
+        userId: req.userId as string, 
+        simulationId, 
+        status: { $in: ['pending', 'in-progress'] } 
+      });
+      if (openAssignment) {
+        linkedAssignmentId = openAssignment._id;
+      }
+    }
+
     const session = new Session({
       userId: req.userId,
       organizationId: req.organizationId,
       simulationId: simulation._id,
-      assignmentId: assignmentId || undefined,
+      assignmentId: linkedAssignmentId || undefined,
       status: 'active',
       transcripts: [],
       conversationState: {},
       analyticsSnapshots: [],
     });
+
+    if (linkedAssignmentId) {
+      await Assignment.findByIdAndUpdate(linkedAssignmentId, { status: 'in-progress' });
+    }
 
     // Use the pre-compiled orchestrated prompt for initial greeting
     try {
@@ -167,6 +186,13 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
       );
     }
 
+    // Extract events from seller message
+    const sellerEvents = EventExtractionEngine.extractEvents(sellerEntry);
+    if (sellerEvents && sellerEvents.length > 0) {
+      if (!session.keyEvents) session.keyEvents = [];
+      session.keyEvents.push(...(sellerEvents as any[]));
+    }
+
     const simulation = session.simulationId as any;
     const persona = await Persona.findById(simulation.personaId);
     const context = await Context.findById(simulation.contextId);
@@ -212,6 +238,13 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
         session.conversationState,
         buyerEntry
       );
+    }
+
+    // Extract events from buyer response
+    const buyerEvents = EventExtractionEngine.extractEvents(buyerEntry);
+    if (buyerEvents && buyerEvents.length > 0) {
+      if (!session.keyEvents) session.keyEvents = [];
+      session.keyEvents.push(...(buyerEvents as any[]));
     }
 
     // 4. Real-time Analytics Snapshot
@@ -328,10 +361,14 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
       await Assignment.findByIdAndUpdate(session.assignmentId, { status: 'completed' });
     } else {
       // Fallback: look for an in-progress assignment for this user/simulation
-      await Assignment.findOneAndUpdate(
+      const assignment = await Assignment.findOneAndUpdate(
         { userId: req.userId as string, simulationId: session.simulationId, status: 'in-progress' },
         { status: 'completed' }
       );
+      if (assignment) {
+        session.assignmentId = assignment._id;
+        await session.save();
+      }
     }
 
     // Re-fetch populated session to ensure frontend has all data
@@ -351,8 +388,17 @@ export const generateCloserStrategy = async (req: AuthRequest, res: Response, ne
   try {
     const sessionId = req.params.sessionId;
     const session = await Session.findById(sessionId);
-    if (!session || session.userId.toString() !== req.userId) {
+    
+    if (!session) {
       return res.status(404).json({ message: 'Session not found' });
+    }
+
+    const isAdmin = req.role === 'organization_admin' || req.role === 'admin';
+    const isOwner = session.userId.toString() === req.userId;
+    const sameOrg = session.organizationId.toString() === req.organizationId;
+
+    if (!isOwner && (!isAdmin || !sameOrg)) {
+      return res.status(403).json({ message: 'Access denied' });
     }
 
     if (!session.coachingInsights || !session.summary) {
@@ -380,9 +426,33 @@ export const getSession = async (req: AuthRequest, res: Response, next: NextFunc
         path: 'simulationId',
         populate: [{ path: 'personaId' }, { path: 'contextId' }, { path: 'rubricId' }]
       });
-    if (!session || session.userId.toString() !== req.userId) {
+
+    if (!session) {
       return res.status(404).json({ message: 'Session not found' });
     }
+
+    const isAdmin = req.role === 'organization_admin' || req.role === 'admin';
+    const isOwner = String(session.userId) === String(req.userId);
+    
+    // Check organization match: either via session metadata or owner's organization
+    let sameOrg = String(session.organizationId) === String(req.organizationId);
+    
+    if (!isOwner && isAdmin && !sameOrg) {
+      const owner = await User.findById(session.userId);
+      if (owner && String(owner.organizationId) === String(req.organizationId)) {
+        sameOrg = true;
+      }
+    }
+
+    console.log(`[SessionAccess] Session:${session._id} User:${req.userId} Role:${req.role} isOwner:${isOwner} isAdmin:${isAdmin} sameOrg:${sameOrg}`);
+
+    if (!isOwner && (!isAdmin || !sameOrg)) {
+      return res.status(403).json({ 
+        message: 'Access denied: You do not have permission to view this report.',
+        debug: { isOwner, isAdmin, sameOrg, userId: req.userId, orgId: req.organizationId }
+      });
+    }
+
     res.json(session);
   } catch (error) {
     next(error);
@@ -391,7 +461,24 @@ export const getSession = async (req: AuthRequest, res: Response, next: NextFunc
 
 export const getUserSessions = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const sessions = await Session.find({ userId: req.userId } as any)
+    const targetUserId = req.query.userId ? (req.query.userId as string) : (req.userId as string);
+    const isRequestingSelf = targetUserId === req.userId;
+    const isAdmin = req.role === 'organization_admin' || req.role === 'admin';
+
+    // Security: Only admins can view other users' sessions within the same org
+    if (!isRequestingSelf) {
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Access denied: Only administrators can view team session history.' });
+      }
+      
+      // Secondary check: verify target user belongs to the same organization
+      const targetUser = await User.findById(targetUserId);
+      if (!targetUser || targetUser.organizationId.toString() !== req.organizationId) {
+        return res.status(403).json({ message: 'Access denied: User belongs to a different organization.' });
+      }
+    }
+
+    const sessions = await Session.find({ userId: targetUserId } as any)
       .populate({
         path: 'simulationId',
         select: 'name personaId contextId',

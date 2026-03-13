@@ -10,18 +10,27 @@ export const Sidebar = () => {
 
   const navItems = [
     ...(isEmployee ? [
-      { name: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
-      { name: 'Reports', path: '/reports', icon: 'analytics' },
+      { section: 'Main Menu', items: [
+        { name: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
+        { name: 'My Reports', path: '/reports', icon: 'analytics' },
+      ]}
     ] : []),
     ...(isAdmin ? [
-      { name: 'Launch Simulation', path: '/session/new', icon: 'rocket_launch', primary: true },
-      { name: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
-      { name: 'Simulations', path: '/simulations', icon: 'play_circle' },
-      { name: 'Assignments', path: '/assignments', icon: 'assignment' },
-      { name: 'Reports', path: '/reports', icon: 'analytics' },
-      { name: 'Personas', path: '/personas', icon: 'person_search' },
-      { name: 'Contexts', path: '/contexts', icon: 'schema' },
-      { name: 'Rubrics', path: '/rubrics', icon: 'checklist_rtl' },
+      { section: 'Main Menu', items: [
+        { name: 'Launch Simulation', path: '/session/new', icon: 'rocket_launch', primary: true },
+        { name: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
+        { name: 'Simulations', path: '/simulations', icon: 'play_circle' },
+        { name: 'My Reports', path: '/reports', icon: 'analytics' },
+      ]},
+      { section: 'My Team', items: [
+        { name: 'Team Assignments', path: '/assignments', icon: 'assignment' },
+        { name: 'Team Performance', path: '/team-performance', icon: 'monitoring' },
+      ]},
+      { section: 'Management', items: [
+        { name: 'Personas', path: '/personas', icon: 'person_search' },
+        { name: 'Contexts', path: '/contexts', icon: 'schema' },
+        { name: 'Rubrics', path: '/rubrics', icon: 'checklist_rtl' },
+      ]}
     ] : []),
   ];
 
@@ -36,32 +45,37 @@ export const Sidebar = () => {
         </h1>
       </div>
 
-      <nav className="flex-1 px-4 mt-6 space-y-1.5">
-        <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Main Menu</p>
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${
-                isActive 
-                  ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]' 
-                  : (item as any).primary 
-                    ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 hover:translate-x-1'
-                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:translate-x-1'
-              }`}
-            >
-              <span className={`material-symbols-outlined transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
-                {item.icon}
-              </span>
-              <span className="font-bold text-sm tracking-tight">{item.name}</span>
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-4 mt-6 space-y-6 overflow-y-auto pb-8 scrollbar-hide">
+        {navItems.map((section: any) => (
+          <div key={section.section}>
+            <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">{section.section}</p>
+            <div className="space-y-1">
+              {section.items.map((item: any) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${
+                      isActive 
+                        ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]' 
+                        : item.primary 
+                          ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 hover:translate-x-1'
+                          : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:translate-x-1'
+                    }`}
+                  >
+                    <span className={`material-symbols-outlined transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+                      {item.icon}
+                    </span>
+                    <span className="font-bold text-sm tracking-tight">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
 
-        <div className="pt-8 mt-8 border-t border-slate-100 dark:border-slate-800">
-          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Account</p>
+        <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
           <Link 
             to="/profile" 
             className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${
