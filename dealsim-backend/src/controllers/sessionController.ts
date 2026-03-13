@@ -8,6 +8,7 @@ import Rubric from '../models/Rubric.js';
 import Assignment from '../models/Assignment.js';
 import axios from 'axios';
 import * as AnalyticsEngine from '../services/analyticsEngine.js';
+import * as ConversationStateEngine from '../services/conversationStateEngine.js';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:3001';
 
@@ -129,7 +130,7 @@ export const startSession = async (req: AuthRequest, res: Response, next: NextFu
 // POST /api/sessions/:sessionId/message — Send a message
 export const sendMessage = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { sessionId } = req.params;
+    const sessionId = req.params.sessionId as string;
     const { message } = req.body;
 
     if (!message || !message.trim()) {
@@ -150,11 +151,21 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
     }
 
     // Append seller message
-    session.transcripts.push({
+    const sellerEntry: any = {
       speaker: 'seller',
       content: message,
       timestamp: new Date(),
-    });
+    };
+    session.transcripts.push(sellerEntry);
+
+    // Update state after seller message
+    if (session.conversationState) {
+      session.conversationState = ConversationStateEngine.updateConversationState(
+        session.transcripts,
+        session.conversationState,
+        sellerEntry
+      );
+    }
 
     const simulation = session.simulationId as any;
     const persona = await Persona.findById(simulation.personaId);
@@ -181,16 +192,27 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
         specialConditions: context.specialConditions,
       },
       // Injects pre-compiled system prompts alongside transcript
-      transcript: `${simulation.orchestratedPrompt.systemPrompt}\n\n${formatTranscript(session.transcripts)}`,
+      // Limit to last 10 conversation turns for baseline token management
+      transcript: `${simulation.orchestratedPrompt.systemPrompt}\n\n${formatTranscript(session.transcripts.slice(-10))}`,
     });
 
     const aiReply = aiResponse.data.reply;
 
-    session.transcripts.push({
+    const buyerEntry: any = {
       speaker: 'buyer',
       content: aiReply,
       timestamp: new Date(),
-    });
+    };
+    session.transcripts.push(buyerEntry);
+
+    // Update state after buyer response
+    if (session.conversationState) {
+      session.conversationState = ConversationStateEngine.updateConversationState(
+        session.transcripts,
+        session.conversationState,
+        buyerEntry
+      );
+    }
 
     // 4. Real-time Analytics Snapshot
     let buyerSentiment: 'positive' | 'neutral' | 'negative' = 'neutral';
@@ -213,6 +235,7 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
     };
 
     session.analyticsSnapshots.push(snapshot);
+    AnalyticsEngine.logAnalyticsSnapshot(sessionId as string, snapshot);
     session.markModified('analyticsSnapshots');
     await session.save();
 
@@ -232,7 +255,7 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
 // POST /api/sessions/:sessionId/end — End a session
 export const endSession = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { sessionId } = req.params;
+    const sessionId = req.params.sessionId as string;
 
     const session = await Session.findById(sessionId).populate('simulationId');
     if (!session) {
@@ -267,13 +290,33 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
     if (summaryRes.status === 'fulfilled') {
       session.summary = summaryRes.value.data;
     } else {
-      session.summary = { overallSummary: 'Summary failed', keyEvents: [] };
+      session.summary = { overallSummary: 'Summary generation failed.', keyEvents: [] };
     }
 
     if (evaluationRes.status === 'fulfilled') {
       session.evaluation = evaluationRes.value.data;
     } else {
       session.evaluation = { competencyScores: {}, overallScore: 0, feedback: { strengths: [], weaknesses: [], recommendations: [] } };
+    }
+
+    // 3. Generate Coaching Insights (Depends on Summary & Evaluation)
+    try {
+      const coachingRes = await axios.post(`${AI_SERVICE_URL}/ai/generate-coaching-insights`, {
+        transcript,
+        summary: session.summary,
+        evaluation: session.evaluation
+      });
+      session.coachingInsights = coachingRes.data;
+    } catch (coachingError) {
+      console.error('[Session] Coaching insights generation failed:', coachingError);
+      session.coachingInsights = {
+        missedDiscoveryQuestions: [],
+        objectionHandling: ["Coaching insights generation failed. Review report and transcript."],
+        suggestedQuestions: [],
+        conversationStrengths: [],
+        dealRiskScore: 0.5,
+        dealRiskReason: "Coaching insights engine error."
+      };
     }
 
     session.status = 'evaluated';
@@ -299,6 +342,31 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
       });
 
     res.json(fullSession);
+  } catch (error) {
+    next(error);
+  }
+};
+// POST /api/sessions/:sessionId/closer-strategy — Generate tactical closing moves
+export const generateCloserStrategy = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const sessionId = req.params.sessionId;
+    const session = await Session.findById(sessionId);
+    if (!session || session.userId.toString() !== req.userId) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    if (!session.coachingInsights || !session.summary) {
+      return res.status(400).json({ message: 'Session must be evaluated first' });
+    }
+
+    const transcript = formatTranscript(session.transcripts);
+    const aiRes = await axios.post(`${AI_SERVICE_URL}/ai/generate-closer-strategy`, {
+      transcript,
+      insights: session.coachingInsights,
+      summary: session.summary
+    });
+
+    res.json(aiRes.data);
   } catch (error) {
     next(error);
   }

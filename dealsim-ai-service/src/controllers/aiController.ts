@@ -2,6 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import { ConversationEngine } from '../services/conversationEngine/conversationEngine.js';
 import { Summarizer } from '../services/summarizer/summarizer.js';
 import { EvaluationEngine } from '../services/evaluationEngine/evaluationEngine.js';
+import { CoachingEngine } from '../services/coachingEngine/coachingEngine.js';
+import { PromptBuilder } from '../services/promptBuilder/promptBuilder.js';
+import { LlmGateway } from '../services/llmGateway/llmGateway.js';
+import { JsonExtractor } from '../utils/jsonExtractor.js';
 
 console.log('[AI Controller] Script loaded');
 
@@ -44,6 +48,28 @@ export const analyzeSentiment = async (req: Request, res: Response, next: NextFu
     const { text } = req.body;
     const sentiment = await EvaluationEngine.analyzeSentiment(text);
     res.json({ sentiment });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const generateCoachingInsights = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { transcript, evaluation, summary } = req.body;
+    const insights = await CoachingEngine.generateCoachingInsights(transcript, evaluation, summary);
+    res.json(insights);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const generateCloserStrategy = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { transcript, insights, summary } = req.body;
+    const prompt = PromptBuilder.buildCloserStrategyPrompt(transcript, insights, summary);
+    const result = await LlmGateway.generateEvaluation(prompt);
+    const strategy = JsonExtractor.extractAndParse(result);
+    res.json({ strategy });
   } catch (error) {
     next(error);
   }

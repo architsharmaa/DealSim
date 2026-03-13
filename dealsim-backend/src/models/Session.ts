@@ -13,7 +13,12 @@ export interface ISession extends mongoose.Document {
   assignmentId?: mongoose.Types.ObjectId;
   status: 'active' | 'completed' | 'evaluated' | 'abandoned';
   transcripts: ITranscriptEntry[];
-  conversationState: any;
+  conversationState: {
+    claimsMade: Array<{ text: string, timestamp: Date }>;
+    topicsCovered: Array<{ text: string, timestamp: Date }>;
+    objectionsRaised: Array<{ text: string, timestamp: Date }>;
+    objectionsResolved: Array<{ text: string, timestamp: Date }>;
+  };
   analyticsSnapshots: any[];
   summary: {
     overallSummary: string;
@@ -27,6 +32,14 @@ export interface ISession extends mongoose.Document {
       weaknesses: string[];
       recommendations: string[];
     };
+  } | null;
+  coachingInsights: {
+    missedDiscoveryQuestions: string[];
+    objectionHandling: string[];
+    suggestedQuestions: string[];
+    conversationStrengths: string[];
+    dealRiskScore: number;
+    dealRiskReason: string;
   } | null;
   startedAt: Date;
   endedAt: Date | null;
@@ -45,10 +58,16 @@ const SessionSchema = new mongoose.Schema({
   assignmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: false },
   status: { type: String, enum: ['active', 'completed', 'evaluated', 'abandoned'], default: 'active' },
   transcripts: [TranscriptEntrySchema],
-  conversationState: { type: mongoose.Schema.Types.Mixed, default: {} },
+  conversationState: {
+    claimsMade: [{ text: String, timestamp: { type: Date, default: Date.now } }],
+    topicsCovered: [{ text: String, timestamp: { type: Date, default: Date.now } }],
+    objectionsRaised: [{ text: String, timestamp: { type: Date, default: Date.now } }],
+    objectionsResolved: [{ text: String, timestamp: { type: Date, default: Date.now } }],
+  },
   analyticsSnapshots: [{ type: mongoose.Schema.Types.Mixed, default: [] }],
   summary: { type: mongoose.Schema.Types.Mixed, default: null },
   evaluation: { type: mongoose.Schema.Types.Mixed, default: null },
+  coachingInsights: { type: mongoose.Schema.Types.Mixed, default: null },
   startedAt: { type: Date, default: Date.now },
   endedAt: { type: Date, default: null },
 });

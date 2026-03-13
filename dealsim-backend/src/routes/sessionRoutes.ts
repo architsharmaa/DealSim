@@ -6,7 +6,9 @@ import {
   endSession,
   getSession,
   getUserSessions,
+  generateCloserStrategy,
 } from '../controllers/sessionController.js';
+import { rateLimitMiddleware } from '../middleware/rateLimitMiddleware.js';
 
 const router = express.Router();
 
@@ -16,7 +18,8 @@ router.use(authMiddleware as any);
 router.post('/', authMiddleware as any, startSession as any);
 router.get('/', getUserSessions as any);
 router.get('/:sessionId', getSession as any);
-router.post('/:sessionId/message', sendMessage as any);
+router.post('/:sessionId/message', rateLimitMiddleware as any, sendMessage as any);
 router.post('/:sessionId/end', endSession as any);
+router.post('/:sessionId/closer-strategy', generateCloserStrategy as any);
 
 export default router;

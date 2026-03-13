@@ -79,3 +79,15 @@ export const detectMonologue = (message: string): boolean => {
   const wordCount = message.split(/\s+/).length;
   return wordCount > 80; // Flag as monologue if more than 80 words in a single turn
 };
+
+export const logAnalyticsSnapshot = (sessionId: string, snapshot: AnalyticsSnapshot) => {
+  console.log(JSON.stringify({
+    event: "analytics_snapshot",
+    sessionId,
+    wpm: snapshot.wpm,
+    talkRatio: snapshot.talkRatio,
+    fillerWords: snapshot.fillerWords,
+    buyerSentiment: snapshot.buyerSentiment,
+    timestamp: snapshot.timestamp
+  }));
+};

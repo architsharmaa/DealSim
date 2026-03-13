@@ -40,4 +40,18 @@ Return JSON: { "overallSummary": "...", "keyEvents": ["..."] }`;
   static buildSentimentPrompt(text: string) {
     return PROMPTS.SENTIMENT_ANALYSIS_PROMPT.replace('{{text}}', text);
   }
+
+  static buildCoachingPrompt(transcript: string, evaluation: any, summary: any) {
+    return PROMPTS.COACHING_INSIGHTS_TEMPLATE
+      .replace('{{transcript}}', transcript)
+      .replace('{{evaluation}}', JSON.stringify(evaluation))
+      .replace('{{summary}}', JSON.stringify(summary));
+  }
+
+  static buildCloserStrategyPrompt(transcript: string, insights: any, summary: any) {
+    return (PROMPTS as any).CLOSER_STRATEGY_TEMPLATE
+      .replace('{{transcript}}', transcript)
+      .replace('{{insights}}', JSON.stringify(insights))
+      .replace('{{summary}}', JSON.stringify(summary));
+  }
 }

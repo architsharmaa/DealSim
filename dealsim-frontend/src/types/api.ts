@@ -97,11 +97,22 @@ export interface Session {
   evaluation: {
     competencyScores: Record<string, number>;
     overallScore: number;
+    sentiment?: 'Positive' | 'Neutral' | 'Negative';
+    objectionsResolved?: number;
+    talkRatio?: { seller: number; buyer: number };
     feedback: {
       strengths: string[];
       weaknesses: string[];
       recommendations: string[];
     };
+  } | null;
+  coachingInsights?: {
+    missedDiscoveryQuestions: string[];
+    objectionHandling: string[];
+    suggestedQuestions: string[];
+    conversationStrengths: string[];
+    dealRiskScore: number;
+    dealRiskReason: string;
   } | null;
   startedAt: string;
   endedAt?: string;

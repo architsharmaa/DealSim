@@ -1,14 +1,21 @@
 import { LlmGateway } from '../llmGateway/llmGateway.js';
 import { PromptBuilder } from '../promptBuilder/promptBuilder.js';
+import { JsonExtractor } from '../../utils/jsonExtractor.js';
+
+interface SentimentCacheEntry {
+  sentiment: string;
+  expiry: number;
+}
+
+const sentimentCache = new Map<string, SentimentCacheEntry>();
+const CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 export class EvaluationEngine {
   static async evaluateSession(transcript: string, rubric: any) {
     const prompt = PromptBuilder.buildEvaluationPrompt(transcript, rubric);
     const result = await LlmGateway.generateEvaluation(prompt);
     try {
-      // Clean up markdown code blocks if necessary
-      const cleanedResult = result.replace(/```json\n?|\n?```/g, '').trim();
-      return JSON.parse(cleanedResult);
+      return JsonExtractor.extractAndParse(result);
     } catch (e) {
       console.error('[Evaluation Parse Error]:', e, result);
       throw new Error('Failed to parse AI evaluation results');
@@ -16,8 +23,23 @@ export class EvaluationEngine {
   }
 
   static async analyzeSentiment(text: string): Promise<string> {
+    const cacheKey = Buffer.from(text).toString('base64');
+    const cached = sentimentCache.get(cacheKey);
+    
+    if (cached && cached.expiry > Date.now()) {
+      console.log('[EvaluationEngine] Reusing cached sentiment for text');
+      return cached.sentiment;
+    }
+
     const prompt = PromptBuilder.buildSentimentPrompt(text);
     const result = await LlmGateway.generateText(prompt);
-    return result.trim();
+    const sentiment = result.trim();
+    
+    sentimentCache.set(cacheKey, {
+      sentiment,
+      expiry: Date.now() + CACHE_TTL_MS
+    });
+    
+    return sentiment;
   }
 }
