@@ -36,11 +36,17 @@ Return your evaluation in JSON format:
 {
   "competencyScores": { "Competency Name": Score (0-100) },
   "overallScore": number (0-100),
+  "sentiment": "Positive" | "Neutral" | "Negative",
+  "objectionsResolved": number,
+  "talkRatio": { "seller": number, "buyer": number },
   "feedback": {
     "strengths": ["string"],
     "weaknesses": ["string"],
     "recommendations": ["string"]
-  }
+  },
+  "highlights": [
+    { "index": number, "type": "KEY_MOMENT" | "GOOD_RESPONSE" | "IMPROVEMENT_NEED", "label": "string" }
+  ]
 }
 `
 };

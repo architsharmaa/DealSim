@@ -1,5 +1,5 @@
 import type { Response, NextFunction } from 'express';
-import type { AuthRequest } from '../middleware/authMiddleware.js';
+import type { AuthRequest } from '../types/index.js';
 import Persona from '../models/Persona.js';
 
 export const createPersona = async (req: AuthRequest, res: Response, next: NextFunction) => {

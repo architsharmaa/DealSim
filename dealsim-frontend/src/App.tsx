@@ -46,7 +46,7 @@ function App() {
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="simulations" element={<SimulationsPage />} />
                 <Route path="assignments" element={<AssignmentsPage />} />
-                <Route path="reports" element={<ReportsPage />} />
+                <Route path="reports/:sessionId?" element={<ReportsPage />} />
                 <Route path="personas" element={<PersonasPage />} />
                 <Route path="contexts" element={<ContextsPage />} />
                 <Route path="rubrics" element={<RubricsPage />} />

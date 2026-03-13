@@ -1,5 +1,5 @@
 import type { Response, NextFunction } from 'express';
-import type { AuthRequest } from '../middleware/authMiddleware.js';
+import type { AuthRequest } from '../types/index.js';
 import Rubric from '../models/Rubric.js';
 
 export const createRubric = async (req: AuthRequest, res: Response, next: NextFunction) => {

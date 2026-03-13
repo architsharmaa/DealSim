@@ -9,6 +9,7 @@ export interface User {
   id: string;
   email: string;
   fullName: string;
+  name?: string; // Backend compatibility
   avatarUrl?: string;
   role: 'organization_admin' | 'org_employee' | 'admin' | 'manager' | 'employee';
   organizationId: string;
@@ -65,37 +66,53 @@ export interface Rubric {
 }
 
 export interface Simulation {
-  id: string;
   _id?: string;
-  title: string;
-  description: string;
-  personaId: string;
-  contextId: string;
-  rubricId: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  estimatedDuration: number; // in minutes
+  id?: string;
+  name: string;
+  personaId: string | Persona;
+  contextId: string | Context;
+  rubricId: string | Rubric;
+  orchestratedPrompt: {
+    systemPrompt: string;
+    personaPrompt: string;
+    contextPrompt: string;
+    evaluationInstructions: string;
+  };
   createdAt: string;
 }
 
 export interface Session {
   id: string;
   _id?: string;
-  simulationId: string;
+  simulationId: string | Simulation;
   userId: string;
-  status: 'active' | 'completed' | 'abandoned';
-  startTime: string;
-  endTime?: string;
-  simulationTitle: string;
-  personaName: string;
+  status: 'active' | 'completed' | 'evaluated' | 'abandoned';
+  transcripts: Message[];
+  conversationState?: any;
+  analyticsSnapshots?: any[];
+  summary: {
+    overallSummary: string;
+    keyEvents: string[];
+  } | null;
+  evaluation: {
+    competencyScores: Record<string, number>;
+    overallScore: number;
+    feedback: {
+      strengths: string[];
+      weaknesses: string[];
+      recommendations: string[];
+    };
+  } | null;
+  startedAt: string;
+  endedAt?: string;
 }
 
 export interface Message {
-  id: string;
+  id?: string;
   _id?: string;
-  sessionId: string;
-  sender: 'user' | 'ai';
+  speaker: 'seller' | 'buyer';
   content: string;
-  timestamp: string;
+  timestamp: string | Date;
 }
 
 export interface Evaluation {
@@ -104,8 +121,6 @@ export interface Evaluation {
   sessionId: string;
   overallScore: number;
   competencyScores: Record<string, number>;
-  summary: string;
-  keyTakeaways: string[];
   feedback: {
     strengths: string[];
     weaknesses: string[];
@@ -121,4 +136,25 @@ export interface AnalyticsSnapshot {
   talkRatio: number; // sender / (sender + recipient)
   fillerWordCount: Record<string, number>;
   sentiment: 'positive' | 'neutral' | 'negative';
+}
+
+export interface Assignment {
+  _id: string;
+  id?: string;
+  userId: string | User;
+  simulationId: string | Simulation;
+  organizationId: string | Organization;
+  status: 'pending' | 'in-progress' | 'completed';
+  assignedDate: string;
+  dueDate?: string;
+  completedAt?: string;
+  score?: number;
+}
+
+export interface DashboardStats {
+  avgScore: number;
+  sessionsCompleted: number;
+  skillGrowth: number;
+  recentSessions: Session[];
+  assignedSimulations: Assignment[];
 }

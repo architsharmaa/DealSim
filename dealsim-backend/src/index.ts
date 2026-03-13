@@ -7,6 +7,10 @@ import userRoutes from './routes/userRoutes.js';
 import personaRoutes from './routes/personaRoutes.js';
 import contextRoutes from './routes/contextRoutes.js';
 import rubricRoutes from './routes/rubricRoutes.js';
+import sessionRoutes from './routes/sessionRoutes.js';
+import simulationRoutes from './routes/simulationRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
+import assignmentRoutes from './routes/assignmentRoutes.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 
 dotenv.config();
@@ -27,6 +31,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/personas', personaRoutes);
 app.use('/api/contexts', contextRoutes);
 app.use('/api/rubrics', rubricRoutes);
+app.use('/api/sessions', sessionRoutes);
+app.use('/api/simulations', simulationRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/assignments', assignmentRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

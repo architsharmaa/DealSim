@@ -14,9 +14,11 @@ export const Sidebar = () => {
       { name: 'Reports', path: '/reports', icon: 'analytics' },
     ] : []),
     ...(isAdmin ? [
+      { name: 'Launch Simulation', path: '/session/new', icon: 'rocket_launch', primary: true },
       { name: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
       { name: 'Simulations', path: '/simulations', icon: 'play_circle' },
       { name: 'Assignments', path: '/assignments', icon: 'assignment' },
+      { name: 'Reports', path: '/reports', icon: 'analytics' },
       { name: 'Personas', path: '/personas', icon: 'person_search' },
       { name: 'Contexts', path: '/contexts', icon: 'schema' },
       { name: 'Rubrics', path: '/rubrics', icon: 'checklist_rtl' },
@@ -45,7 +47,9 @@ export const Sidebar = () => {
               className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${
                 isActive 
                   ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]' 
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:translate-x-1'
+                  : (item as any).primary 
+                    ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 hover:translate-x-1'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:translate-x-1'
               }`}
             >
               <span className={`material-symbols-outlined transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>

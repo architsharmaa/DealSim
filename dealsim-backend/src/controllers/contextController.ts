@@ -1,5 +1,5 @@
 import type { Response, NextFunction } from 'express';
-import type { AuthRequest } from '../middleware/authMiddleware.js';
+import type { AuthRequest } from '../types/index.js';
 import Context from '../models/Context.js';
 
 export const createContext = async (req: AuthRequest, res: Response, next: NextFunction) => {

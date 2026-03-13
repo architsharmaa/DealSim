@@ -1,11 +1,6 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
-export interface AuthRequest extends Request {
-  userId?: string;
-  organizationId?: string;
-  role?: string;
-}
+import type { AuthRequest } from '../types/index.js';
 
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -19,8 +14,10 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
     req.userId = decoded.userId;
     req.organizationId = decoded.organizationId;
     req.role = decoded.role;
+    console.log(`[AuthMiddleware] User:${req.userId} Org:${req.organizationId} Role:${req.role}`);
     next();
   } catch (err) {
+    console.error(`[AuthMiddleware] Invalid Token:`, err);
     res.status(401).json({ message: 'Token is not valid' });
   }
 };
