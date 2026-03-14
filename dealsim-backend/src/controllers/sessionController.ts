@@ -11,6 +11,7 @@ import axios from 'axios';
 import * as AnalyticsEngine from '../services/analyticsEngine.js';
 import * as ConversationStateEngine from '../services/conversationStateEngine.js';
 import * as EventExtractionEngine from '../services/eventExtractionEngine.js';
+import { WebhookDeliveryService } from '../services/webhookDeliveryService.js';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:3001';
 
@@ -41,6 +42,16 @@ export const startSession = async (req: AuthRequest, res: Response, next: NextFu
 
     if (existingSession) {
       console.log(`[Session] Returning existing session: ${existingSession._id} (Status: ${existingSession.status})`);
+      
+      // Trigger Webhook: session.started (fired even on resume to notify external listeners)
+      WebhookDeliveryService.triggerEvent(req.organizationId as string, 'session.started', {
+        sessionId: existingSession._id,
+        userId: existingSession.userId,
+        simulationId: (existingSession.simulationId as any)?._id || existingSession.simulationId,
+        status: existingSession.status,
+        resumed: true
+      });
+
       return res.json(existingSession);
     }
 
@@ -139,6 +150,14 @@ export const startSession = async (req: AuthRequest, res: Response, next: NextFu
         path: 'simulationId',
         populate: [{ path: 'personaId' }, { path: 'contextId' }, { path: 'rubricId' }]
       });
+
+    // Trigger Webhook: session.started
+    WebhookDeliveryService.triggerEvent(req.organizationId as string, 'session.started', {
+      sessionId: session._id,
+      userId: session.userId,
+      simulationId: (session.simulationId as any)?._id || session.simulationId,
+      status: session.status
+    });
 
     res.status(201).json(fullSession);
   } catch (error) {
@@ -303,6 +322,13 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
       return res.status(400).json({ message: 'Session is already ended' });
     }
 
+    // Trigger Webhook: session.completed
+    WebhookDeliveryService.triggerEvent(req.organizationId as string, 'session.completed', {
+      sessionId: session._id,
+      userId: session.userId,
+      simulationId: (session.simulationId as any)?._id || session.simulationId,
+    });
+
     const transcript = formatTranscript(session.transcripts);
     const simulation = session.simulationId as any;
     const rubric = await Rubric.findById(simulation.rubricId);
@@ -355,6 +381,14 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
     session.status = 'evaluated';
     session.endedAt = new Date();
     await session.save();
+
+    // Trigger Webhook: evaluation.ready
+    WebhookDeliveryService.triggerEvent(req.organizationId as string, 'evaluation.ready', {
+      sessionId: session._id,
+      userId: session.userId,
+      overallScore: session.evaluation?.overallScore,
+      summary: session.summary?.overallSummary
+    });
 
     // 4. Update Assignment status if linked
     if (session.assignmentId) {

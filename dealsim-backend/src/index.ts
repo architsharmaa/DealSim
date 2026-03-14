@@ -11,6 +11,8 @@ import sessionRoutes from './routes/sessionRoutes.js';
 import simulationRoutes from './routes/simulationRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import assignmentRoutes from './routes/assignmentRoutes.js';
+import webhookRoutes from './routes/webhookRoutes.js';
+import organizationRoutes from './routes/organizationRoutes.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 
 dotenv.config();
@@ -35,6 +37,8 @@ app.use('/api/sessions', sessionRoutes);
 app.use('/api/simulations', simulationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/assignments', assignmentRoutes);
+app.use('/api/webhooks', webhookRoutes);
+app.use('/api/organizations', organizationRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

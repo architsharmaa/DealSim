@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
 import type { Persona, Context, Rubric, Simulation } from '../types/api';
+import { WebhookSettingsModal } from '../components/WebhookSettingsModal';
 
 export const SimulationsPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
 
   // Queries
   const { data: simulations, isLoading: loadingSims } = useQuery<Simulation[]>({
@@ -93,6 +95,10 @@ export const SimulationsPage = () => {
           <button onClick={() => navigate('/rubrics')} className="text-xs font-bold text-slate-500 hover:text-primary transition-colors flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
             <span className="material-symbols-outlined text-sm">checklist</span> Rubrics
           </button>
+          <div className="w-[1px] h-6 bg-slate-200 dark:border-slate-800 mx-1" />
+          <button onClick={() => setIsWebhookModalOpen(true)} className="text-xs font-bold text-primary hover:text-primary transition-colors flex items-center gap-1.5 px-3 py-2 bg-primary/5 rounded-xl border border-primary/20">
+            <span className="material-symbols-outlined text-sm">link</span> Webhooks
+          </button>
         </div>
       </div>
 
@@ -160,7 +166,7 @@ export const SimulationsPage = () => {
             <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
               <div>
                 <h3 className="text-2xl font-black">Scenario Compilation</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Bake persona and context into a reusable prompt.</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Bake persona and context into a reusable prompt. <button type="button" onClick={() => setIsWebhookModalOpen(true)} className="text-primary hover:underline font-bold">Configure Webhooks</button></p>
               </div>
               <button 
                 onClick={() => setIsModalOpen(false)} 
@@ -219,6 +225,11 @@ export const SimulationsPage = () => {
           </div>
         </div>
       )}
+
+      <WebhookSettingsModal 
+        isOpen={isWebhookModalOpen} 
+        onClose={() => setIsWebhookModalOpen(false)} 
+      />
     </div>
   );
 };

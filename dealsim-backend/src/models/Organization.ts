@@ -3,12 +3,16 @@ import mongoose from 'mongoose';
 export interface IOrganization extends mongoose.Document {
   name: string;
   industry?: string;
+  webhookUrl?: string;
+  webhookSecret?: string;
   createdAt: Date;
 }
 
 const OrganizationSchema = new mongoose.Schema({
   name: { type: String, required: true },
   industry: { type: String },
+  webhookUrl: { type: String },
+  webhookSecret: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 

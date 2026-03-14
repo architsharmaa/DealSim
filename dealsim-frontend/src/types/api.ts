@@ -2,6 +2,8 @@ export interface Organization {
   id: string;
   name: string;
   plan: 'free' | 'pro' | 'enterprise';
+  webhookUrl?: string;
+  webhookSecret?: string;
   createdAt: string;
 }
 
