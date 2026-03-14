@@ -14,28 +14,24 @@ export const calculateWordsPerMinute = (transcripts: any[], startedAt: Date): nu
   if (sellerMessages.length === 0) return 0;
 
   const now = new Date().getTime();
-  const twoMinutesAgo = now - 120000;
+  const oneMinuteAgo = now - 60000;
   
-  // Filter for messages in the last 2 minutes
-  let recentMessages = sellerMessages.filter(t => new Date(t.timestamp).getTime() > twoMinutesAgo);
+  // Filter for messages in the last 1 minute for better live reactivity
+  let recentMessages = sellerMessages.filter(t => new Date(t.timestamp).getTime() > oneMinuteAgo);
   
-  // If no messages in the last 2 mins, just use the single most recent one to give a "current" reading
   if (recentMessages.length === 0) {
     recentMessages = [sellerMessages[sellerMessages.length - 1]];
   }
 
   const totalWords = recentMessages.reduce((sum, t) => sum + t.content.split(/\s+/).length, 0);
   
-  // Determine the baseline: when did the current "active" segment start?
   const windowStartTime = new Date(recentMessages[0].timestamp).getTime();
   
-  // Duration is from window start until now, plus a small buffer (5s) 
-  // to avoid infinite WPM on a single quick message.
-  const minutesElapsed = (now - windowStartTime + 5000) / 60000;
+  // Reduced buffer to 2 seconds for faster updates
+  const minutesElapsed = (now - windowStartTime + 2000) / 60000;
   
   const wpm = Math.round(totalWords / minutesElapsed);
   
-  // Sanity check: cap at 300
   return Math.min(wpm, 300);
 };
 

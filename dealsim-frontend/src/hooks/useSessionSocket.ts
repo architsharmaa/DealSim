@@ -6,8 +6,8 @@ const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 export interface AnalyticsUpdate {
   wpm: number;
   talkRatio: number;
-  fillerWordCount: Record<string, number>;
-  sentiment: string;
+  fillerWords: Record<string, number>;
+  buyerSentiment: string;
   monologueFlag: boolean;
 }
 
