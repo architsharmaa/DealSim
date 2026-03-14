@@ -224,6 +224,18 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
       session.keyEvents.push(...(sellerEvents as any[]));
     }
 
+    // --- [NEW] Preliminary Analytics (Fast Feedback) ---
+    // Emit immediate update for WPM, Filler Words, and Talk Ratio based on just-sent seller message
+    const prelimSnapshot = {
+      timestamp: new Date(),
+      wpm: AnalyticsEngine.calculateWordsPerMinute(session.transcripts, session.startedAt),
+      fillerWords: AnalyticsEngine.detectFillerWords(message),
+      talkRatio: AnalyticsEngine.calculateTalkRatio(session.transcripts),
+      monologueFlag: AnalyticsEngine.detectMonologue(message),
+      buyerSentiment: 'neutral' // Sentiment is pending AI reply
+    };
+    socketService.emitToSession(sessionId, 'analytics_update', prelimSnapshot);
+
     const simulation = session.simulationId as any;
     const context = await Context.findById(simulation.contextId);
 
