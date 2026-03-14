@@ -1,44 +1,44 @@
 const { io } = require('socket.io-client');
 
-// UPDATE THIS with a real session ID from your database
-const SESSION_ID = process.argv[2]; 
+const sessionId = process.argv[2];
 
-if (!SESSION_ID) {
-  console.error('❌ Error: Please provide a Session ID as an argument.');
-  console.log('Usage: node test_sockets.js <session_id>');
+if (!sessionId) {
+  console.error('Usage: node test_sockets.js <sessionId>');
   process.exit(1);
 }
 
-const socket = io('http://localhost:3000');
+console.log(`Connecting to socket server for session: ${sessionId}...`);
 
-console.log(`🔌 Connecting to server for session: ${SESSION_ID}...`);
+const socket = io('http://localhost:3000', {
+  transports: ['websocket'],
+  reconnection: true
+});
 
 socket.on('connect', () => {
-  console.log('✅ Connected! Subscribing...');
-  socket.emit('subscribe', SESSION_ID);
+  console.log('✅ Connected to WebSocket server');
+  console.log('Subscribing to session events...');
+  socket.emit('subscribe', sessionId);
 });
 
 socket.on('analytics_update', (data) => {
-  console.log('\n📊 [LIVE UPDATE RECEIVED]');
-  console.log('-------------------------');
-  console.log(`WPM: ${data.wpm}`);
-  console.log(`Talk Ratio: ${Math.round(data.talkRatio * 100)}% seller`);
-  console.log(`Filler Words:`, JSON.stringify(data.fillerWordCount));
-  if (data.monologueFlag) console.log('⚠️  MONOLOGUE DETECTED!');
-  console.log('-------------------------');
+  console.log('\n--- [LIVE UPDATE RECEIVED] ---');
+  console.log(JSON.stringify(data, null, 2));
 });
 
 socket.on('session_ended', (data) => {
-  console.log('\n🏁 Session Ended event received:', data);
+  console.log('\n--- [SESSION ENDED] ---');
+  console.log(data);
   process.exit(0);
 });
 
 socket.on('disconnect', () => {
-  console.log('🛑 Socket disconnected');
+  console.log('❌ Disconnected from server');
 });
 
-// Timeout after 60 seconds if nothing happens
+socket.on('connect_error', (err) => {
+  console.error('Connection Error:', err.message);
+});
+
 setTimeout(() => {
-  console.log('\n⏰ Timeout: No updates received for 60s. Closing.');
-  process.exit(0);
-}, 60000);
+  console.log('\n(Monitoring for 2 minutes... Send a message in the browser to see updates)');
+}, 1000);

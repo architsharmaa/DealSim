@@ -75,9 +75,11 @@ export const extractEvents = (message: ITranscriptEntry): IKeyEvent[] => {
 
   DETECTION_RULES.forEach(rule => {
     // Check speaker if specific speaker is required
-    if (rule.speaker !== 'any' && rule.speaker !== message.speaker) {
-      return;
-    }
+    const isSeller = message.speaker === 'seller';
+    const isBuyer = !isSeller;
+
+    if (rule.speaker === 'seller' && !isSeller) return;
+    if (rule.speaker === 'buyer' && !isBuyer) return;
 
     const matches = rule.patterns.some(pattern => pattern.test(content));
     if (matches) {
