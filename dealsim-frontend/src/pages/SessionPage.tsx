@@ -76,6 +76,25 @@ export const SessionPage = () => {
     return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   };
 
+  const getSpeakerStyles = (speaker: string) => {
+    if (speaker === 'seller') return { bg: 'bg-slate-900 dark:bg-white', text: 'text-white dark:text-slate-900', label: 'Field Representative (You)' };
+    if (speaker === 'narrator') return { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-400', label: 'System' };
+    
+    // Hash-based color for personas
+    const colors = [
+      'from-primary to-indigo-600',
+      'from-emerald-500 to-teal-600',
+      'from-amber-500 to-orange-600',
+      'from-rose-500 to-pink-600',
+      'from-violet-500 to-purple-600'
+    ];
+    let hash = 0;
+    for (let i = 0; i < speaker.length; i++) hash = speaker.charCodeAt(i) + ((hash << 5) - hash);
+    const color = colors[Math.abs(hash) % colors.length];
+
+    return { bg: `bg-gradient-to-br ${color}`, text: 'text-white', label: speaker };
+  };
+
   // Start session
   const handleStart = async (overrideId?: string) => {
     const targetId = overrideId || selectedSimulationId;
@@ -303,31 +322,47 @@ export const SessionPage = () => {
 
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar scroll-smooth">
-          {session?.transcripts.map((t: any, i: number) => (
-            <div key={i} className={`flex items-start gap-6 max-w-[85%] ${t.speaker === 'seller' ? 'ml-auto flex-row-reverse' : ''}`}>
-              <div className={`size-12 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-lg transition-transform hover:scale-110 duration-300 ${
-                t.speaker === 'buyer'
-                  ? 'bg-gradient-to-br from-primary to-indigo-600 text-white font-black text-lg'
-                  : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
-              }`}>
-                {t.speaker === 'buyer' ? persona?.name?.charAt(0) || 'B' : <span className="material-symbols-outlined">person</span>}
-              </div>
-              <div className={`space-y-2 ${t.speaker === 'seller' ? 'flex flex-col items-end text-right' : ''}`}>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">
-                  {t.speaker === 'buyer' ? `${persona?.name}` : 'Field Representative (You)'}
-                </p>
-                <div className={`p-6 rounded-[2rem] shadow-xl ${
-                  t.speaker === 'buyer'
-                    ? 'bg-white dark:bg-slate-900 rounded-tl-none border border-slate-200 dark:border-slate-800'
-                    : 'bg-primary rounded-tr-none text-white shadow-primary/20'
-                }`}>
-                  <p className="text-sm font-medium leading-relaxed">
-                    {t.content}
+          {session?.transcripts.map((t: any, i: number) => {
+            const isSeller = t.speaker === 'seller';
+            const isNarrator = t.speaker === 'narrator';
+            const styles = getSpeakerStyles(t.speaker);
+
+            if (isNarrator) {
+              return (
+                <div key={i} className="flex justify-center">
+                  <div className="bg-slate-100 dark:bg-slate-900/50 px-6 py-2 rounded-full border border-slate-200 dark:border-slate-800">
+                    <p className="text-[10px] font-bold text-slate-500 italic">{t.content}</p>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div key={i} className={`flex items-start gap-6 max-w-[85%] ${isSeller ? 'ml-auto flex-row-reverse' : ''}`}>
+                <div className={`size-12 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-lg transition-transform hover:scale-110 duration-300 ${styles.bg} ${styles.text}`}>
+                  {isSeller ? (
+                    <span className="material-symbols-outlined">person</span>
+                  ) : (
+                    <span className="font-black text-lg">{t.speaker.charAt(0)}</span>
+                  )}
+                </div>
+                <div className={`space-y-2 ${isSeller ? 'flex flex-col items-end text-right' : ''}`}>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">
+                    {styles.label}
                   </p>
+                  <div className={`p-6 rounded-[2rem] shadow-xl ${
+                    isSeller
+                      ? 'bg-primary rounded-tr-none text-white shadow-primary/20'
+                      : 'bg-white dark:bg-slate-900 rounded-tl-none border border-slate-200 dark:border-slate-800'
+                  }`}>
+                    <p className="text-sm font-medium leading-relaxed">
+                      {t.content}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {sending && (
             <div className="flex items-start gap-6 max-w-[85%] animate-in fade-in slide-in-from-left-4">
               <div className="size-12 rounded-2xl bg-gradient-to-br from-primary to-indigo-600 flex-shrink-0 flex items-center justify-center text-white font-black text-lg">
@@ -408,6 +443,28 @@ export const SessionPage = () => {
               {session?.status === 'evaluated' ? 'Performance Scorecard' : 'Live Diagnostics'}
             </h3>
           </div>
+
+          {simulation?.committeePersonaIds && (simulation.committeePersonaIds as any[]).length > 0 && (
+            <div className="space-y-4">
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Participants</p>
+               <div className="space-y-3">
+                 {[persona, ...(simulation.committeePersonaIds as any[])].filter(Boolean).map((p: any) => {
+                    const styles = getSpeakerStyles(p.name);
+                    return (
+                      <div key={p._id || p.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 flex items-center gap-4">
+                        <div className={`size-8 rounded-lg flex items-center justify-center font-black text-xs ${styles.bg} ${styles.text}`}>
+                          {p.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-slate-900 dark:text-white leading-none">{p.name}</p>
+                          <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">{p.role}</p>
+                        </div>
+                      </div>
+                    );
+                 })}
+               </div>
+            </div>
+          )}
 
           {!session?.evaluations?.length && !ending && (
             <div className="space-y-6">

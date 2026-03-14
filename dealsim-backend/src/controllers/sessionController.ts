@@ -21,7 +21,14 @@ const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:3001';
 // Helper: format transcripts for the AI service
 function formatTranscript(transcripts: any[]): string {
   return transcripts
-    .map((t) => `${t.speaker === 'seller' ? 'Seller' : 'Buyer'}: ${t.content}`)
+    .map((t) => {
+      let speaker = t.speaker;
+      if (speaker === 'seller') speaker = 'Seller';
+      else if (speaker === 'buyer') speaker = 'Buyer';
+      else if (speaker === 'narrator') speaker = 'System';
+      // else it's already the persona name like 'CFO'
+      return `${speaker}: ${t.content}`;
+    })
     .join('\n');
 }
 
@@ -61,6 +68,7 @@ export const startSession = async (req: AuthRequest, res: Response, next: NextFu
     // 2. Fetch the compiled simulation
     const simulation = await Simulation.findById(simulationId)
       .populate('personaId')
+      .populate('committeePersonaIds')
       .populate('contextId')
       .populate('rubricId');
 
@@ -533,7 +541,7 @@ export const getSession = async (req: AuthRequest, res: Response, next: NextFunc
     const session = await Session.findById(sessionId)
       .populate({
         path: 'simulationId',
-        populate: [{ path: 'personaId' }, { path: 'contextId' }, { path: 'rubricId' }]
+        populate: [{ path: 'personaId' }, { path: 'committeePersonaIds' }, { path: 'contextId' }, { path: 'rubricId' }]
       });
 
     if (!session) {
@@ -590,8 +598,8 @@ export const getUserSessions = async (req: AuthRequest, res: Response, next: Nex
     const sessions = await Session.find({ userId: targetUserId } as any)
       .populate({
         path: 'simulationId',
-        select: 'name personaId contextId',
-        populate: [{ path: 'personaId', select: 'name' }, { path: 'contextId', select: 'product' }]
+        select: 'name personaId committeePersonaIds contextId',
+        populate: [{ path: 'personaId', select: 'name' }, { path: 'committeePersonaIds', select: 'name role' }, { path: 'contextId', select: 'product' }]
       })
       .sort({ startedAt: -1 });
     res.json(sessions);
@@ -616,7 +624,7 @@ export const reEvaluateSession = async (req: AuthRequest, res: Response, next: N
 
     const session = await Session.findById(sessionId).populate({
       path: 'simulationId',
-      populate: [{ path: 'personaId' }, { path: 'contextId' }, { path: 'rubricId' }]
+      populate: [{ path: 'personaId' }, { path: 'committeePersonaIds' }, { path: 'contextId' }, { path: 'rubricId' }]
     });
 
     if (!session) return res.status(404).json({ message: 'Session not found' });
