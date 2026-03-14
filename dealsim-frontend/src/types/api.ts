@@ -100,7 +100,7 @@ export interface Session {
   evaluation: {
     competencyScores: Record<string, number>;
     overallScore: number;
-    sentiment?: 'Positive' | 'Neutral' | 'Negative';
+    buyerSentiment?: 'positive' | 'neutral' | 'negative';
     objectionsResolved?: number;
     talkRatio?: { seller: number; buyer: number };
     feedback: {
@@ -113,7 +113,7 @@ export interface Session {
     frameworkId: string | EvaluationFramework;
     competencyScores: Record<string, number>;
     overallScore: number;
-    sentiment?: 'Positive' | 'Neutral' | 'Negative';
+    buyerSentiment?: 'positive' | 'neutral' | 'negative';
     objectionsResolved?: number;
     talkRatio?: { seller: number; buyer: number };
     feedback: {
@@ -170,7 +170,7 @@ export interface AnalyticsSnapshot {
   wpm: number;
   talkRatio: number; // sender / (sender + recipient)
   fillerWordCount: Record<string, number>;
-  sentiment: 'positive' | 'neutral' | 'negative';
+  buyerSentiment: 'positive' | 'neutral' | 'negative';
 }
 
 export interface Assignment {

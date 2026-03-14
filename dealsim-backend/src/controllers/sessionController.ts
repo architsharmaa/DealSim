@@ -339,9 +339,15 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
     let buyerSentiment: 'positive' | 'neutral' | 'negative' = 'neutral';
     try {
       const sentimentResponse = await axios.post(`${AI_SERVICE_URL}/ai/analyze-sentiment`, { text: aiReply });
-      const rawSentiment = sentimentResponse.data.sentiment.toLowerCase();
-      if (rawSentiment.includes('positive')) buyerSentiment = 'positive';
-      else if (rawSentiment.includes('negative')) buyerSentiment = 'negative';
+      const rawSentiment = (sentimentResponse.data.sentiment || 'neutral').toLowerCase();
+      console.log(`[Sentiment Debug] AI Reply: "${aiReply.substring(0, 50)}..."`);
+      console.log(`[Sentiment Debug] Raw AI Sentiment: "${rawSentiment}"`);
+      
+      if (rawSentiment.match(/positive|good|happy/)) buyerSentiment = 'positive';
+      else if (rawSentiment.match(/negative|bad|unhappy|angry|frustrated/)) buyerSentiment = 'negative';
+      else buyerSentiment = 'neutral';
+      
+      console.log(`[Sentiment Debug] Mapped Sentiment: "${buyerSentiment}"`);
     } catch (sentError) {
       console.error('[Session] Sentiment analysis error:', sentError);
     }
@@ -433,6 +439,7 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
       competencyScores: resultEvaluation.competencyScores,
       overallScore: resultEvaluation.overallScore,
       feedback: resultEvaluation.feedback,
+      buyerSentiment: resultEvaluation.sentiment || resultEvaluation.buyerSentiment || 'neutral',
       createdAt: new Date()
     }];
 
@@ -691,6 +698,7 @@ export const reEvaluateSession = async (req: AuthRequest, res: Response, next: N
       competencyScores: evaluationRes.data.competencyScores as Record<string, number>,
       overallScore: evaluationRes.data.overallScore,
       feedback: evaluationRes.data.feedback,
+      buyerSentiment: evaluationRes.data.sentiment || evaluationRes.data.buyerSentiment || 'neutral',
       createdAt: new Date()
     };
 

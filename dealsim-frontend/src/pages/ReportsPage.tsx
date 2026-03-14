@@ -495,7 +495,7 @@ export const ReportsPage = () => {
         </div>
         <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Customer Sentiment</p>
-          <p className="text-slate-900 dark:text-slate-100 text-3xl font-bold">{evaluation?.sentiment || (session.status === 'active' ? 'Analyzing...' : '—')}</p>
+          <p className="text-slate-900 dark:text-slate-100 text-3xl font-bold uppercase">{evaluation?.buyerSentiment || (session.status === 'active' ? 'Analyzing...' : '—')}</p>
         </div>
         <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Key Objections</p>

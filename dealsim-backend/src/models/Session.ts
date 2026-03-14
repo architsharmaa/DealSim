@@ -34,6 +34,7 @@ export interface ISession extends mongoose.Document {
       weaknesses: Array<string | { point: string; evidence?: string }>;
       recommendations: string[];
     };
+    buyerSentiment?: string;
     createdAt: Date;
   }>;
   coachingInsights: {
@@ -81,6 +82,7 @@ const SessionSchema = new mongoose.Schema({
     competencyScores: { type: mongoose.Schema.Types.Mixed },
     overallScore: { type: Number },
     feedback: { type: mongoose.Schema.Types.Mixed },
+    buyerSentiment: { type: String },
     createdAt: { type: Date, default: Date.now }
   }],
   coachingInsights: { type: mongoose.Schema.Types.Mixed, default: null },
