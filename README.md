@@ -1,6 +1,6 @@
 # DealSim: Sales Roleplay Engine
 
-DealSim is a high-fidelity sales training platform that allows sales representatives to practice complex deal scenarios with realistic, multi-persona buying committees. It provides real-time speech analytics, evidence-based feedback, and advanced sales methodology evaluations.
+DealSim is a sales training platform that allows sales representatives to practice complex deal scenarios with realistic, multi-persona buying committees. It provides real-time speech analytics, evidence-based feedback, and advanced sales methodology evaluations.
 
 ## Core Features
 
@@ -38,11 +38,27 @@ DealSim is built as a microservices-inspired monorepo:
     npm run dev
     ```
 
-## Technical Optimizations
+## Design Decisions and Trade-offs
 
-- **Context-Aware Sentiment**: Unlike basic sentiment analysis, DealSim uses the full conversation transcript to judge "Buying Temperature," correctly identifying friction even when the buyer is professionally polite.
-- **Sub-Second Reactivity**: Custom WebSocket throttling and optimized math logic for real-time speech metrics.
-- **Strict Validation**: Zod-based schemas ensure data integrity across all API layers.
+- **Decoupled Architecture**: I chose to isolate the core logic into a dedicated service. This allows the backend to remain a fast, lightweight state-manager while the specialized service handles the heavy lifting of prompt engineering and context-aware analysis. *Trade-off*: Adds network overhead between services but allows for independent scaling.
+- **Hybrid Real-Time Delivery**: Used standard REST for chat messages for guaranteed delivery but implemented WebSockets exclusively for the high-frequency analytics snapshots. *Trade-off*: Simplifies message state-management while still providing the "wow" factor of a reactive dashboard.
+- **Structured Prompting over Chaining**: I prioritized single-turn complex prompting with structured JSON output for evaluations. *Trade-off*: More rigorous prompt engineering was required to prevent hallucinations, but it avoids the latency tax of multi-step chains.
+- **Critical Path Testing**: Automated unit tests for evaluation parsing, analytics computation, and secure webhook signing to ensure reliability.
+
+## Assumptions Made
+
+- **Estimated WPM**: Since this is a text-based roleplay, WPM is calculated based on characters-per-minute and assumed typing cadences. This is a proxy for voice conversation metrics.
+- **Single User Context**: Per the assignment brief, I assumed a single-user environment and focused on session orchestration rather than auth/multi-tenancy.
+- **MongoDB for Consistency**: Assumed the availability of a document store to handle the varying shapes of multi-persona transcripts and evaluation rubrics.
+
+## What I'd Do Differently with More Time
+
+- **Streaming Responses**: I would implement streaming for buyer replies to eliminate the perceived wait-time during complex turn-taking.
+- **Robust Message Queuing**: For the Webhook system, I would introduce a task queue (like BullMQ or RabbitMQ) to handle retries more resiliently under high load.
+- **Voice-to-Text Integration**: Adding a real-time STT layer would allow for true conversational pace analysis instead of the current character-based estimates.
+
+## Design Document
+[Design Document](https://docs.google.com/document/d/109LDcXaDvDfxeX8EENlW6nqf-dQcSoJaACWbTkGvhvk/edit?usp=sharing)
 
 ---
-Built for the PitchSense Engineering Challenge.
+Built for the Engineering Challenge.
