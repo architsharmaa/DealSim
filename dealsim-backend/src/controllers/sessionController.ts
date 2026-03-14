@@ -15,6 +15,7 @@ import * as ConversationStateEngine from '../services/conversationStateEngine.js
 import * as EventExtractionEngine from '../services/eventExtractionEngine.js';
 import { WebhookDeliveryService } from '../services/webhookDeliveryService.js';
 import EvaluationFramework from '../models/EvaluationFramework.js';
+import * as PersonaTurnEngine from '../services/personaTurnEngine.js';
 import { socketService } from '../services/socketService.js';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:3001';

@@ -1,0 +1,24 @@
+{
+  "name": "dealsim",
+  "version": "1.0.0",
+  "description": "",
+  "main": "download_stitch.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/architsharmaa/DealSim.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/architsharmaa/DealSim/issues"
+  },
+  "homepage": "https://github.com/architsharmaa/DealSim#readme",
+  "dependencies": {
+    "@types/node": "^25.5.0",
+    "socket.io-client": "^4.8.3"
+  }
+}
