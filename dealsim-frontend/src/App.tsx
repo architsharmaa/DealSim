@@ -16,6 +16,7 @@ import { PersonasPage } from './pages/PersonasPage';
 import { ContextsPage } from './pages/ContextsPage';
 import { RubricsPage } from './pages/RubricsPage';
 import { TeamPerformancePage } from './pages/TeamPerformancePage';
+import { ProfilePage } from './pages/ProfilePage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,8 +26,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-const ProfilePage = () => <div className="p-8"><h2 className="text-2xl font-bold">Profile Page Placeholder</h2></div>;
 
 function App() {
   return (
