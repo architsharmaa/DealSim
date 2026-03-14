@@ -1,6 +1,7 @@
 import type { Response, NextFunction } from 'express';
 import type { AuthRequest } from '../types/index.js';
 import Webhook from '../models/Webhook.js';
+import DeliveryLog from '../models/DeliveryLog.js';
 import { WebhookDeliveryService } from '../services/webhookDeliveryService.js';
 import crypto from 'crypto';
 
@@ -67,6 +68,28 @@ export const testWebhook = async (req: AuthRequest, res: Response, next: NextFun
 
     await WebhookDeliveryService.triggerTest(webhook);
     res.json({ message: 'Test webhook triggered' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDeliveryLogs = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const organizationId = req.organizationId;
+
+    // Verify the webhook belongs to the caller's org
+    const webhook = await Webhook.findOne({ _id: id as any, organizationId: organizationId as any });
+    if (!webhook) {
+      return res.status(404).json({ message: 'Webhook not found' });
+    }
+
+    const logs = await DeliveryLog.find({ webhookId: id })
+      .sort({ timestamp: -1 })
+      .limit(50)
+      .lean();
+
+    res.json(logs);
   } catch (error) {
     next(error);
   }

@@ -8,6 +8,7 @@ import Context from '../models/Context.js';
 import Rubric from '../models/Rubric.js';
 import Assignment from '../models/Assignment.js';
 import User from '../models/User.js';
+import Organization from '../models/Organization.js';
 import axios from 'axios';
 import * as AnalyticsEngine from '../services/analyticsEngine.js';
 import * as ConversationStateEngine from '../services/conversationStateEngine.js';
@@ -397,6 +398,20 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
       overallScore: session.evaluations[0]?.overallScore,
       summary: session.summary?.overallSummary
     });
+
+    // Trigger Webhook: score.threshold_breached (if score is below org's configured threshold)
+    const overallScore = session.evaluations[0]?.overallScore ?? 100;
+    const org = await Organization.findById(req.organizationId);
+    const threshold = org?.scoreThreshold ?? 50;
+    if (overallScore < threshold) {
+      WebhookDeliveryService.triggerEvent(req.organizationId as string, 'score.threshold_breached', {
+        sessionId: session._id,
+        userId: session.userId,
+        overallScore,
+        threshold,
+        message: `Session score ${overallScore} is below the configured threshold of ${threshold}.`
+      });
+    }
 
     // 4. Update Assignment status if linked
     if (session.assignmentId) {

@@ -12,5 +12,6 @@ router.post('/', webhookController.registerWebhook);
 router.get('/', webhookController.getWebhooks);
 router.delete('/:id', webhookController.deleteWebhook);
 router.post('/:id/test', webhookController.testWebhook);
+router.get('/:id/delivery-logs', webhookController.getDeliveryLogs);
 
 export default router;

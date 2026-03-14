@@ -5,6 +5,7 @@ export interface IOrganization extends mongoose.Document {
   industry?: string;
   webhookUrl?: string;
   webhookSecret?: string;
+  scoreThreshold?: number;
   createdAt: Date;
 }
 
@@ -13,6 +14,7 @@ const OrganizationSchema = new mongoose.Schema({
   industry: { type: String },
   webhookUrl: { type: String },
   webhookSecret: { type: String },
+  scoreThreshold: { type: Number, default: 50 },
   createdAt: { type: Date, default: Date.now },
 });
 
