@@ -338,7 +338,11 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
     // 4. Real-time Analytics Snapshot
     let buyerSentiment: 'positive' | 'neutral' | 'negative' = 'neutral';
     try {
-      const sentimentResponse = await axios.post(`${AI_SERVICE_URL}/ai/analyze-sentiment`, { text: aiReply });
+      const transcript = formatTranscript(session.transcripts);
+      const sentimentResponse = await axios.post(`${AI_SERVICE_URL}/ai/analyze-sentiment`, { 
+        text: aiReply,
+        transcript
+      });
       const rawSentiment = (sentimentResponse.data.sentiment || 'neutral').toLowerCase();
       console.log(`[Sentiment Debug] AI Reply: "${aiReply.substring(0, 50)}..."`);
       console.log(`[Sentiment Debug] Raw AI Sentiment: "${rawSentiment}"`);

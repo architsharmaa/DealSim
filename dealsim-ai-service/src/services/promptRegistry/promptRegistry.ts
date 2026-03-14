@@ -50,10 +50,19 @@ Return your evaluation in JSON format:
 }
 `,
   SENTIMENT_ANALYSIS_PROMPT: `
-Classify the sentiment of the following buyer response in a sales conversation.
-Response: "{{text}}"
+Classify the buying sentiment (Buying Temperature) of the buyer in a sales conversation.
+Use the conversation history for context to understand the buyer's attitude, even if they are being professionally polite.
 
-Return ONLY one of the following words: Positive, Neutral, Negative.
+# CONVERSATION HISTORY
+{{transcript}}
+
+# LAST BUYER RESPONSE
+"{{text}}"
+
+Return ONLY one of the following words based on the BUYER'S current mood/openness to the deal:
+- Positive
+- Neutral
+- Negative
 `,
   COACHING_INSIGHTS_TEMPLATE: `
 You are a world-class sales coach for DealSim. Your task is to analyze the provided session transcript, summary, and evaluation results to generate structured coaching insights.

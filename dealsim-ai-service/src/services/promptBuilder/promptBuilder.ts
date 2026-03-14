@@ -37,8 +37,10 @@ Transcript: ${transcript}
 Return JSON: { "overallSummary": "...", "keyEvents": ["..."] }`;
   }
 
-  static buildSentimentPrompt(text: string) {
-    return PROMPTS.SENTIMENT_ANALYSIS_PROMPT.replace('{{text}}', text);
+  static buildSentimentPrompt(text: string, transcript: string) {
+    return PROMPTS.SENTIMENT_ANALYSIS_PROMPT
+      .replace('{{text}}', text)
+      .replace('{{transcript}}', transcript);
   }
 
   static buildCoachingPrompt(transcript: string, evaluation: any, summary: any) {

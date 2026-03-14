@@ -22,16 +22,16 @@ export class EvaluationEngine {
     }
   }
 
-  static async analyzeSentiment(text: string): Promise<string> {
-    const cacheKey = Buffer.from(text).toString('base64');
+  static async analyzeSentiment(text: string, transcript: string = ''): Promise<string> {
+    const cacheKey = Buffer.from(text + transcript).toString('base64');
     const cached = sentimentCache.get(cacheKey);
     
     if (cached && cached.expiry > Date.now()) {
-      console.log('[EvaluationEngine] Reusing cached sentiment for text');
+      console.log('[EvaluationEngine] Reusing cached sentiment for text+context');
       return cached.sentiment;
     }
 
-    const prompt = PromptBuilder.buildSentimentPrompt(text);
+    const prompt = PromptBuilder.buildSentimentPrompt(text, transcript);
     const result = await LlmGateway.generateText(prompt);
     const sentiment = result.trim();
     

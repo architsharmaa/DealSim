@@ -45,8 +45,8 @@ export const evaluateSession = async (req: Request, res: Response, next: NextFun
 
 export const analyzeSentiment = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { text } = req.body;
-    const sentiment = await EvaluationEngine.analyzeSentiment(text);
+    const { text, transcript } = req.body;
+    const sentiment = await EvaluationEngine.analyzeSentiment(text, transcript);
     res.json({ sentiment });
   } catch (error) {
     next(error);
