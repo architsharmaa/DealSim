@@ -25,7 +25,7 @@ export const SessionPage = () => {
   const [elapsed, setElapsed] = useState(0);
 
   // Live Analytics from WebSocket
-  const { liveAnalytics, isSocketConnected } = useSessionSocket(sessionId === 'new' ? undefined : sessionId);
+  const { liveAnalytics } = useSessionSocket(sessionId === 'new' ? undefined : sessionId);
   const latestSnapshot = liveAnalytics || session?.analyticsSnapshots?.[session.analyticsSnapshots.length - 1];
 
   // Load setup data
