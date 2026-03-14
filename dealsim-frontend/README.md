@@ -1,73 +1,29 @@
-# React + TypeScript + Vite
+# DealSim Frontend 🎨
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A premium, reactive sales coaching interface built with React, Vite, and modern styling.
 
-Currently, two official plugins are available:
+## 🚀 Top-Tier UI/UX
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Live Roleplay Deck**: Immersive chat experience with persona badges and participant context.
+- **Real-Time Diagnostics**: Dynamic gauges for Sentiment, Talk Ratio, and WPM that update as you type.
+- **Evidence-Based Reporting**: Interactive reports that highlight "Gold Standard" quotes and "High Friction" moments.
+- **Glassmorphic Design**: Clean, modern dark mode with subtle micro-animations for a premium feel.
 
-## React Compiler
+## 🛠️ Technical Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Core**: React 18 + TypeScript.
+- **State/Data**: TanStack Query (React Query) for robust server-state management.
+- **Communication**: Socket.io-client for low-latency live analytics.
+- **Icons**: Material Symbols (Rounded) for a cohesive enterprise look.
 
-## Expanding the ESLint configuration
+## 📁 Key Components
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **`SessionPage.tsx`**: The main live simulation hub.
+- **`ReportsPage.tsx`**: Post-session visualization and feedback.
+- **`SimulationsPage.tsx`**: Scenario setup and Buying Committee configuration.
+- **`useSessionSocket.ts`**: High-performance hook for real-time data sync.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🚦 Local Setup
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. `npm install`
+2. `npm run dev` (Runs on Port 5173).
