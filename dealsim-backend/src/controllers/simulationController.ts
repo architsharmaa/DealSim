@@ -4,6 +4,7 @@ import Simulation from '../models/Simulation.js';
 import Persona from '../models/Persona.js';
 import Context from '../models/Context.js';
 import Rubric from '../models/Rubric.js';
+import EvaluationFramework from '../models/EvaluationFramework.js';
 
 // Simulation "Compiler" Logic — mimics the Prompt Registry from the design doc
 function compilePrompts(persona: any, context: any, rubric: any) {
@@ -50,11 +51,15 @@ export const createSimulation = async (req: AuthRequest, res: Response, next: Ne
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    const [persona, context, rubric] = await Promise.all([
+    const [persona, context] = await Promise.all([
       Persona.findById(personaId),
       Context.findById(contextId),
-      Rubric.findById(rubricId),
     ]);
+
+    let rubric = await Rubric.findById(rubricId);
+    if (!rubric) {
+      rubric = await EvaluationFramework.findById(rubricId) as any;
+    }
 
     if (!persona || !context || !rubric) {
       return res.status(404).json({ message: 'One or more building blocks not found' });

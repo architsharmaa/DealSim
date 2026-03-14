@@ -108,6 +108,20 @@ export interface Session {
       recommendations: string[];
     };
   } | null;
+  evaluations?: Array<{
+    frameworkId: string | EvaluationFramework;
+    competencyScores: Record<string, number>;
+    overallScore: number;
+    sentiment?: 'Positive' | 'Neutral' | 'Negative';
+    objectionsResolved?: number;
+    talkRatio?: { seller: number; buyer: number };
+    feedback: {
+      strengths: string[];
+      weaknesses: string[];
+      recommendations: string[];
+    };
+    createdAt: string;
+  }>;
   coachingInsights?: {
     missedDiscoveryQuestions: string[];
     objectionHandling: string[];
@@ -196,4 +210,21 @@ export interface TeamPerformance {
   teamAvgScore: number;
   totalCompletions: number;
   employeePerformance: EmployeePerformance[];
+}
+
+export interface FrameworkCompetency {
+  name: string;
+  description: string;
+  weight: number;
+  scoringGuidelines: string;
+}
+
+export interface EvaluationFramework {
+  _id: string;
+  id?: string;
+  name: string;
+  description: string;
+  competencies: FrameworkCompetency[];
+  isBuiltIn: boolean;
+  createdAt: string;
 }

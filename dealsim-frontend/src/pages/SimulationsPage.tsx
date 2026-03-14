@@ -32,6 +32,11 @@ export const SimulationsPage = () => {
     queryFn: () => apiClient.get('/rubrics'),
   });
 
+  const { data: frameworks } = useQuery<any[]>({
+    queryKey: ['evaluation-frameworks'],
+    queryFn: () => apiClient.get('/evaluation-frameworks'),
+  });
+
   // Create Simulation Mutation
   const createMutation = useMutation({
     mutationFn: (newSim: any) => apiClient.post('/simulations', newSim),
@@ -200,8 +205,13 @@ export const SimulationsPage = () => {
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Grading Rubric</label>
                 <select name="rubricId" required className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-transparent focus:border-primary focus:bg-white dark:focus:bg-slate-800 rounded-2xl transition-all appearance-none cursor-pointer">
-                  <option value="">Select Rubric...</option>
-                  {rubrics?.map(r => <option key={r._id} value={r._id}>{r.name}</option>)}
+                  <option value="">Select Rubric or Methodology...</option>
+                  <optgroup label="Standard Methodologies">
+                    {frameworks?.map(f => <option key={f._id} value={f._id}>{f.name}</option>)}
+                  </optgroup>
+                  <optgroup label="Custom Rubrics">
+                    {rubrics?.map(r => <option key={r._id} value={r._id}>{r.name}</option>)}
+                  </optgroup>
                 </select>
               </div>
 

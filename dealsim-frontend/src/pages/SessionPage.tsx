@@ -409,7 +409,7 @@ export const SessionPage = () => {
             </h3>
           </div>
 
-          {!session?.evaluation && !ending && (
+          {!session?.evaluations?.length && !ending && (
             <div className="space-y-6">
               {/* Live Analytics Dashboard */}
               <div className="grid grid-cols-1 gap-4">
@@ -505,14 +505,14 @@ export const SessionPage = () => {
             </div>
           )}
 
-          {session?.evaluation && (
+          {session?.evaluations?.[0] && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
               <div className="relative p-1 bg-gradient-to-br from-primary to-indigo-600 rounded-[3rem] shadow-2xl shadow-primary/20">
                 <div className="bg-white dark:bg-slate-950 rounded-[2.8rem] p-8 text-center">
                   <span className="text-[12px] font-black text-primary uppercase tracking-[0.3em] block mb-4">Overall Score</span>
                   <div className="flex items-center justify-center gap-2">
                     <span className="text-7xl font-black text-slate-900 dark:text-white tabular-nums">
-                      {session.evaluation.overallScore || '—'}
+                      {session.evaluations[0].overallScore || '—'}
                     </span>
                     <span className="text-lg font-bold text-slate-400 mt-6">/100</span>
                   </div>
@@ -531,13 +531,13 @@ export const SessionPage = () => {
               )}
 
               <div className="space-y-4">
-                {session.evaluation.feedback?.strengths?.length > 0 && (
+                {session.evaluations[0].feedback?.strengths?.length > 0 && (
                   <div className="p-6 rounded-[2.5rem] bg-emerald-500/5 border border-emerald-500/10">
                     <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm font-black">done_all</span> Key Wins
                     </p>
                     <ul className="space-y-3">
-                      {session.evaluation.feedback.strengths.map((s: string, i: number) => (
+                      {session.evaluations[0].feedback.strengths.map((s: string, i: number) => (
                         <li key={i} className="flex gap-3 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 leading-relaxed group">
                           <span className="size-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black flex-shrink-0 group-hover:scale-110 transition-transform">✓</span>
                           {s}
@@ -547,13 +547,13 @@ export const SessionPage = () => {
                   </div>
                 )}
 
-                {session.evaluation.feedback?.weaknesses?.length > 0 && (
+                {session.evaluations[0].feedback?.weaknesses?.length > 0 && (
                   <div className="p-6 rounded-[2.5rem] bg-red-500/5 border border-red-500/10">
                     <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm font-black">report_problem</span> High Friction
                     </p>
                     <ul className="space-y-3">
-                      {session.evaluation.feedback.weaknesses.map((w: string, i: number) => (
+                      {session.evaluations[0].feedback.weaknesses.map((w: string, i: number) => (
                         <li key={i} className="flex gap-3 text-[11px] font-bold text-red-700 dark:text-red-400 leading-relaxed group">
                           <span className="size-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black flex-shrink-0 group-hover:scale-110 transition-transform">!</span>
                           {w}

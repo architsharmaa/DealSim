@@ -54,6 +54,16 @@ export const RubricsPage = () => {
     createMutation.mutate(data);
   };
 
+  const { data: frameworks } = useQuery<any[]>({
+    queryKey: ['evaluation-frameworks'],
+    queryFn: () => apiClient.get('/evaluation-frameworks'),
+  });
+
+  const allDisplayRubrics = [
+    ...(frameworks?.map(f => ({ ...f, isBuiltIn: true })) || []),
+    ...(rubrics || [])
+  ];
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -64,7 +74,7 @@ export const RubricsPage = () => {
           </div>
           <h2 className="text-4xl font-extrabold tracking-tight">Grading Rubrics</h2>
           <p className="text-slate-500 dark:text-slate-400 text-lg max-w-2xl">
-            Design weighted scorecards to objectively evaluate sales performance across discovery, empathy, and technical competence.
+            Design weighted scorecards or use standard sales methodologies to objectively evaluate performance.
           </p>
         </div>
         <button 
@@ -85,24 +95,33 @@ export const RubricsPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {rubrics?.map((rubric) => (
+          {allDisplayRubrics.map((rubric) => (
             <div 
               key={rubric._id || rubric.id} 
               className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 hover:shadow-2xl hover:shadow-slate-200/50 dark:hover:shadow-black/50 transition-all duration-500 flex flex-col h-full"
             >
               <div className="flex justify-between items-start mb-6">
                 <div className="w-14 h-14 bg-primary/5 dark:bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
-                  <span className="material-symbols-outlined text-2xl">assignment_turned_in</span>
+                  <span className="material-symbols-outlined text-2xl">
+                    {rubric.isBuiltIn ? 'verified_user' : 'assignment_turned_in'}
+                  </span>
                 </div>
-                <div className="px-3 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg text-[10px] font-black tracking-widest uppercase border border-slate-100 dark:border-slate-700">
-                  {rubric.competencies?.length || 0} Criteria
+                <div className="flex gap-2">
+                   {rubric.isBuiltIn && (
+                      <div className="px-3 py-1 bg-primary text-white rounded-lg text-[10px] font-black tracking-widest uppercase border border-primary">
+                        Standard
+                      </div>
+                   )}
+                  <div className="px-3 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg text-[10px] font-black tracking-widest uppercase border border-slate-100 dark:border-slate-700">
+                    {rubric.competencies?.length || 0} Criteria
+                  </div>
                 </div>
               </div>
 
               <h3 className="text-2xl font-black mb-6 group-hover:text-primary transition-colors">{rubric.name}</h3>
               
               <div className="flex-1 space-y-4">
-                {rubric.competencies?.map((comp: Competency, idx) => (
+                {rubric.competencies?.map((comp: Competency, idx: number) => (
                   <div key={idx} className="space-y-1.5">
                     <div className="flex justify-between text-xs font-bold uppercase tracking-tighter">
                       <span className="text-slate-600 dark:text-slate-400">{comp.name}</span>
@@ -118,17 +137,28 @@ export const RubricsPage = () => {
                 ))}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Modified recently</span>
-                <div className="flex gap-2">
-                  <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors">
-                    <span className="material-symbols-outlined text-base">edit</span>
-                  </button>
-                  <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-colors">
-                    <span className="material-symbols-outlined text-base">delete</span>
-                  </button>
+              {!rubric.isBuiltIn && (
+                <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Modified recently</span>
+                  <div className="flex gap-2">
+                    <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors">
+                      <span className="material-symbols-outlined text-base">edit</span>
+                    </button>
+                    <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-colors">
+                      <span className="material-symbols-outlined text-base">delete</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
+              
+              {rubric.isBuiltIn && (
+                <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Read-Only Methodology</span>
+                  <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/5 text-primary">
+                    <span className="material-symbols-outlined text-base">lock</span>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
 

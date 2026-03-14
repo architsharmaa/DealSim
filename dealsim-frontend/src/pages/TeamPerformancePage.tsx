@@ -50,7 +50,7 @@ const EmployeeSessionsModal = ({ userId, userName, onClose }: { userId: string, 
                     <div className="flex items-center gap-6">
                       <div className="text-right">
                         <p className="text-sm font-black text-slate-900 dark:text-white">
-                          {s.evaluation?.overallScore !== undefined ? `${s.evaluation.overallScore}%` : '—'}
+                          {s.evaluations?.[0]?.overallScore !== undefined ? `${s.evaluations[0].overallScore}%` : '—'}
                         </p>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Score</p>
                       </div>

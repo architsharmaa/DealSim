@@ -7,6 +7,7 @@ import {
   getSession,
   getUserSessions,
   generateCloserStrategy,
+  reEvaluateSession,
 } from '../controllers/sessionController.js';
 import { rateLimitMiddleware } from '../middleware/rateLimitMiddleware.js';
 
@@ -21,5 +22,6 @@ router.get('/:sessionId', getSession as any);
 router.post('/:sessionId/message', rateLimitMiddleware as any, sendMessage as any);
 router.post('/:sessionId/end', endSession as any);
 router.post('/:sessionId/closer-strategy', generateCloserStrategy as any);
+router.post('/:sessionId/re-evaluate', reEvaluateSession as any);
 
 export default router;

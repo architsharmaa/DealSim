@@ -13,6 +13,7 @@ import analyticsRoutes from './routes/analyticsRoutes.js';
 import assignmentRoutes from './routes/assignmentRoutes.js';
 import webhookRoutes from './routes/webhookRoutes.js';
 import organizationRoutes from './routes/organizationRoutes.js';
+import evaluationFrameworkRoutes from './routes/evaluationFrameworkRoutes.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 
 dotenv.config();
@@ -39,6 +40,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/organizations', organizationRoutes);
+app.use('/api/evaluation-frameworks', evaluationFrameworkRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

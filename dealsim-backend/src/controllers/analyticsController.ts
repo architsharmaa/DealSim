@@ -21,17 +21,17 @@ export const getDashboardStats = async (req: AuthRequest, res: Response, next: N
 
     const currentStats = await Session.aggregate([
       { $match: { userId, status: 'evaluated', startedAt: { $gte: currentMonthStart } } },
-      { $group: { _id: null, avgScore: { $avg: '$evaluation.overallScore' } } }
+      { $group: { _id: null, avgScore: { $avg: { $arrayElemAt: ['$evaluations.overallScore', 0] } } } }
     ]);
 
     const lastMonthStats = await Session.aggregate([
       { $match: { userId, status: 'evaluated', startedAt: { $gte: lastMonthStart, $lt: currentMonthStart } } },
-      { $group: { _id: null, avgScore: { $avg: '$evaluation.overallScore' } } }
+      { $group: { _id: null, avgScore: { $avg: { $arrayElemAt: ['$evaluations.overallScore', 0] } } } }
     ]);
 
     const allTimeStats = await Session.aggregate([
       { $match: { userId, status: 'evaluated' } },
-      { $group: { _id: null, avgScore: { $avg: '$evaluation.overallScore' } } }
+      { $group: { _id: null, avgScore: { $avg: { $arrayElemAt: ['$evaluations.overallScore', 0] } } } }
     ]);
 
     const avgScore = allTimeStats.length > 0 ? Math.round(allTimeStats[0].avgScore) : 0;
@@ -61,15 +61,15 @@ export const getDashboardStats = async (req: AuthRequest, res: Response, next: N
     // 4. Skill Growth: Compare first 3 vs latest 3
     const allEvaluated = await Session.find({ userId, status: 'evaluated' })
       .sort({ startedAt: 1 })
-      .select('evaluation.overallScore');
+      .select('evaluations.overallScore');
 
     let skillGrowth = 0;
     if (allEvaluated.length >= 2) {
       const firstFew = allEvaluated.slice(0, Math.min(3, Math.floor(allEvaluated.length / 2)));
       const lastFew = allEvaluated.slice(-Math.min(3, Math.floor(allEvaluated.length / 2)));
       
-      const firstAvg = firstFew.reduce((acc, s) => acc + (s.evaluation?.overallScore || 0), 0) / firstFew.length;
-      const recentAvg = lastFew.reduce((acc, s) => acc + (s.evaluation?.overallScore || 0), 0) / lastFew.length;
+      const firstAvg = firstFew.reduce((acc, s) => acc + (s.evaluations?.[0]?.overallScore || 0), 0) / firstFew.length;
+      const recentAvg = lastFew.reduce((acc, s) => acc + (s.evaluations?.[0]?.overallScore || 0), 0) / lastFew.length;
       
       skillGrowth = firstAvg > 0 ? Math.round(((recentAvg - firstAvg) / firstAvg) * 100) : 0;
     }
@@ -116,7 +116,7 @@ export const getTeamPerformance = async (req: AuthRequest, res: Response, next: 
       { $match: { organizationId: orgId, status: 'evaluated' } },
       { $group: { 
           _id: null, 
-          avgScore: { $avg: '$evaluation.overallScore' },
+          avgScore: { $avg: { $arrayElemAt: ['$evaluations.overallScore', 0] } },
           totalCompletions: { $sum: 1 }
       }}
     ]);
@@ -133,16 +133,16 @@ export const getTeamPerformance = async (req: AuthRequest, res: Response, next: 
     const employeePerformance = await Promise.all(employees.map(async (emp) => {
       const empSessions = await Session.find({ userId: emp._id, status: 'evaluated' })
         .sort({ startedAt: 1 })
-        .select('evaluation.overallScore');
+        .select('evaluations.overallScore');
 
       let avgScore = 0;
       let growth = 0;
       if (empSessions.length > 0) {
-        avgScore = Math.round(empSessions.reduce((acc, s) => acc + (s.evaluation?.overallScore || 0), 0) / empSessions.length);
+        avgScore = Math.round(empSessions.reduce((acc, s) => acc + (s.evaluations?.[0]?.overallScore || 0), 0) / empSessions.length);
         
         if (empSessions.length >= 2) {
-          const first = empSessions[0]?.evaluation?.overallScore ?? 0;
-          const last = empSessions[empSessions.length - 1]?.evaluation?.overallScore ?? 0;
+          const first = empSessions[0]?.evaluations?.[0]?.overallScore ?? 0;
+          const last = empSessions[empSessions.length - 1]?.evaluations?.[0]?.overallScore ?? 0;
           growth = first > 0 ? Math.round(((last - first) / first) * 100) : 0;
         }
       }

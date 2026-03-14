@@ -1,3 +1,4 @@
+import mongoose, { Types } from 'mongoose';
 import type { Response, NextFunction } from 'express';
 import type { AuthRequest } from '../types/index.js';
 import Session from '../models/Session.js';
@@ -12,6 +13,7 @@ import * as AnalyticsEngine from '../services/analyticsEngine.js';
 import * as ConversationStateEngine from '../services/conversationStateEngine.js';
 import * as EventExtractionEngine from '../services/eventExtractionEngine.js';
 import { WebhookDeliveryService } from '../services/webhookDeliveryService.js';
+import EvaluationFramework from '../models/EvaluationFramework.js';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:3001';
 
@@ -352,18 +354,24 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
       session.summary = { overallSummary: 'Summary generation failed.', keyEvents: [] };
     }
 
-    if (evaluationRes.status === 'fulfilled') {
-      session.evaluation = evaluationRes.value.data;
-    } else {
-      session.evaluation = { competencyScores: {}, overallScore: 0, feedback: { strengths: [], weaknesses: [], recommendations: [] } };
-    }
+    const resultEvaluation = evaluationRes.status === 'fulfilled' 
+      ? evaluationRes.value.data 
+      : { competencyScores: {}, overallScore: 0, feedback: { strengths: [], weaknesses: [], recommendations: [] } };
+
+    session.evaluations = [{
+      frameworkId: simulation.rubricId,
+      competencyScores: resultEvaluation.competencyScores,
+      overallScore: resultEvaluation.overallScore,
+      feedback: resultEvaluation.feedback,
+      createdAt: new Date()
+    }];
 
     // 3. Generate Coaching Insights (Depends on Summary & Evaluation)
     try {
       const coachingRes = await axios.post(`${AI_SERVICE_URL}/ai/generate-coaching-insights`, {
         transcript,
         summary: session.summary,
-        evaluation: session.evaluation
+        evaluation: session.evaluations[0]
       });
       session.coachingInsights = coachingRes.data;
     } catch (coachingError) {
@@ -386,7 +394,7 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
     WebhookDeliveryService.triggerEvent(req.organizationId as string, 'evaluation.ready', {
       sessionId: session._id,
       userId: session.userId,
-      overallScore: session.evaluation?.overallScore,
+      overallScore: session.evaluations[0]?.overallScore,
       summary: session.summary?.overallSummary
     });
 
@@ -420,7 +428,10 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
 // POST /api/sessions/:sessionId/closer-strategy — Generate tactical closing moves
 export const generateCloserStrategy = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const sessionId = req.params.sessionId;
+    const sessionId = req.params.sessionId as string;
+    if (!Types.ObjectId.isValid(sessionId)) {
+      return res.status(400).json({ message: 'Invalid session ID' });
+    }
     const session = await Session.findById(sessionId);
     
     if (!session) {
@@ -455,7 +466,11 @@ export const generateCloserStrategy = async (req: AuthRequest, res: Response, ne
 // ... (other endpoints same but using simulationId)
 export const getSession = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const session = await Session.findById(req.params.sessionId)
+    const sessionId = req.params.sessionId as string;
+    if (!Types.ObjectId.isValid(sessionId)) {
+      return res.status(400).json({ message: 'Invalid session ID' });
+    }
+    const session = await Session.findById(sessionId)
       .populate({
         path: 'simulationId',
         populate: [{ path: 'personaId' }, { path: 'contextId' }, { path: 'rubricId' }]
@@ -520,6 +535,92 @@ export const getUserSessions = async (req: AuthRequest, res: Response, next: Nex
       })
       .sort({ startedAt: -1 });
     res.json(sessions);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// POST /api/sessions/:sessionId/re-evaluate — Re-evaluate session with a specific framework
+export const reEvaluateSession = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const sessionId = req.params.sessionId as string;
+    const { frameworkId } = req.body;
+
+    if (!Types.ObjectId.isValid(sessionId)) {
+      return res.status(400).json({ message: 'Invalid session ID' });
+    }
+
+    if (!frameworkId || !Types.ObjectId.isValid(frameworkId)) {
+      return res.status(400).json({ message: 'Valid frameworkId is required' });
+    }
+
+    const session = await Session.findById(sessionId).populate({
+      path: 'simulationId',
+      populate: [{ path: 'personaId' }, { path: 'contextId' }, { path: 'rubricId' }]
+    });
+
+    if (!session) return res.status(404).json({ message: 'Session not found' });
+
+    // Find the methodology in either EvaluationFramework or Rubric
+    let framework = await EvaluationFramework.findById(frameworkId);
+    if (!framework) {
+        // Fallback to custom Rubric model
+        const rubricAsFramework = await Rubric.findById(frameworkId);
+        if (rubricAsFramework) {
+            framework = rubricAsFramework as any;
+        }
+    }
+
+    if (!framework) return res.status(404).json({ message: 'Methodology Framework/Rubric not found' });
+
+    // Check permissions (Admins and Managers can re-evaluate with different frameworks)
+    const isAuthorized = req.role === 'organization_admin' || req.role === 'admin' || req.role === 'manager';
+    const sameOrg = String(session.organizationId) === String(req.organizationId);
+
+    if (!isAuthorized || !sameOrg) {
+      return res.status(403).json({ message: 'Access denied: Only administrators and managers can re-evaluate sessions.' });
+    }
+
+    if (session.status === 'active') {
+      return res.status(400).json({ message: 'Cannot re-evaluate active sessions. Please end the session first.' });
+    }
+
+    const transcript = formatTranscript(session.transcripts);
+
+    // Build dynamic rubric from framework competencies for AI service
+    const evaluationRes = await axios.post(`${AI_SERVICE_URL}/ai/evaluate-session`, {
+      transcript,
+      rubric: {
+        name: framework.name,
+        competencies: framework.competencies,
+        instructions: `Evaluate this roleplay specifically using the ${framework.name} sales methodology. ${framework.description}`
+      }
+    });
+
+    const newEvaluation = {
+      frameworkId: framework._id,
+      competencyScores: evaluationRes.data.competencyScores as Record<string, number>,
+      overallScore: evaluationRes.data.overallScore,
+      feedback: evaluationRes.data.feedback,
+      createdAt: new Date()
+    };
+
+    // Initialize evaluations array if missing
+    if (!session.evaluations) {
+      session.evaluations = [];
+    }
+
+    // Update or Push
+    const existingIndex = session.evaluations.findIndex(e => e.frameworkId.toString() === frameworkId);
+    if (existingIndex > -1) {
+      session.evaluations[existingIndex] = newEvaluation;
+    } else {
+      session.evaluations.push(newEvaluation);
+    }
+
+    await session.save();
+
+    res.json(session);
   } catch (error) {
     next(error);
   }

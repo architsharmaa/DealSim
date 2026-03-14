@@ -24,7 +24,8 @@ export interface ISession extends mongoose.Document {
     overallSummary: string;
     keyEvents: string[];
   } | null;
-  evaluation: {
+  evaluations: Array<{
+    frameworkId: mongoose.Types.ObjectId;
     competencyScores: Record<string, number>;
     overallScore: number;
     feedback: {
@@ -32,7 +33,8 @@ export interface ISession extends mongoose.Document {
       weaknesses: string[];
       recommendations: string[];
     };
-  } | null;
+    createdAt: Date;
+  }>;
   coachingInsights: {
     missedDiscoveryQuestions: string[];
     objectionHandling: string[];
@@ -72,7 +74,13 @@ const SessionSchema = new mongoose.Schema({
   },
   analyticsSnapshots: [{ type: mongoose.Schema.Types.Mixed, default: [] }],
   summary: { type: mongoose.Schema.Types.Mixed, default: null },
-  evaluation: { type: mongoose.Schema.Types.Mixed, default: null },
+  evaluations: [{
+    frameworkId: { type: mongoose.Schema.Types.ObjectId, ref: 'EvaluationFramework' },
+    competencyScores: { type: mongoose.Schema.Types.Mixed },
+    overallScore: { type: Number },
+    feedback: { type: mongoose.Schema.Types.Mixed },
+    createdAt: { type: Date, default: Date.now }
+  }],
   coachingInsights: { type: mongoose.Schema.Types.Mixed, default: null },
   keyEvents: [{
     type: { type: String, required: true },

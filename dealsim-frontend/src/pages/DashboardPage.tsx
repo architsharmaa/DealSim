@@ -149,7 +149,7 @@ export const DashboardPage = () => {
                 <div key={session._id} className="p-6 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors group">
                   <div className="flex items-center gap-4">
                     <div className="size-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-black text-sm">
-                      {session.evaluation?.overallScore || '—'}%
+                      {session.evaluations?.[0]?.overallScore || '—'}%
                     </div>
                     <div>
                       <h5 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">{(session.simulationId as any)?.name || 'Practice Session'}</h5>

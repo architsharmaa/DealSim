@@ -1,14 +1,39 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import apiClient from '../api/client';
-import type { Session, Simulation } from '../types/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Session, EvaluationFramework, Rubric } from '../types/api';
+import { FrameworkComparison } from '../components/FrameworkComparison';
 
 export const ReportsPage = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [generatingStrategy, setGeneratingStrategy] = useState(false);
   const [strategyMoves, setStrategyMoves] = useState<string[] | null>(null);
+
+  const [frameworkAId, setFrameworkAId] = useState<string>('');
+  const [frameworkBId, setFrameworkBId] = useState<string>('');
+  const [showComparison, setShowComparison] = useState(false);
+
+  const { data: frameworks } = useQuery<EvaluationFramework[]>({
+    queryKey: ['evaluation-frameworks'],
+    queryFn: () => apiClient.get('/evaluation-frameworks'),
+  });
+
+  const { data: rubrics } = useQuery<Rubric[]>({
+    queryKey: ['rubrics'],
+    queryFn: () => apiClient.get('/rubrics'),
+  });
+
+  const reEvaluateMutation = useMutation({
+    mutationFn: ({ sessId, frameworkId }: { sessId: string; frameworkId: string }) => 
+      apiClient.post(`/sessions/${sessId}/re-evaluate`, { frameworkId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['session', sessionId] });
+      queryClient.invalidateQueries({ queryKey: ['user-sessions'] });
+    }
+  });
 
   // Helper to clean corrupted summary data (markdown remnants)
   const cleanSummary = (text: string) => {
@@ -75,11 +100,44 @@ export const ReportsPage = () => {
     );
   }
 
-  const simulation = session.simulationId as Simulation | undefined;
+  const simulation = session?.simulationId as any;
+  const originalRubric = simulation?.rubricId;
+  
+  const allFrameworks = frameworks ? frameworks.map(f => ({ ...f, type: 'Standard' })) : [];
+  
+  // Add all custom rubrics to the list
+  if (rubrics) {
+    rubrics.forEach(r => {
+      const rId = r._id || (r as any).id;
+      if (!allFrameworks.find(f => f._id === rId)) {
+        allFrameworks.push({
+          ...r,
+          _id: rId,
+          name: r.name,
+          type: 'Custom Rubric'
+        } as any);
+      }
+    });
+  }
+
+  // Ensure the original rubric is tagged and at the top of custom group if needed
+  if (originalRubric) {
+    const rubricId = originalRubric?._id || originalRubric?.id;
+    const existing = allFrameworks.find(f => f._id === rubricId);
+    if (!existing) {
+      allFrameworks.unshift({
+          ...originalRubric,
+          _id: rubricId,
+          name: originalRubric.name,
+          type: 'Custom Rubric'
+      } as any);
+    }
+  }
+
   const persona = simulation?.personaId && typeof simulation.personaId === 'object' 
     ? (simulation.personaId as any) 
     : undefined;
-  const evaluation = session.evaluation;
+  const evaluation = session.evaluations?.[0];
   
   // Calculate relative time for transcript
   const formatTranscriptTime = (timestamp: string | Date) => {
@@ -103,6 +161,7 @@ export const ReportsPage = () => {
       setGeneratingStrategy(false);
     }
   };
+
 
   const duration = session.endedAt 
     ? Math.floor((new Date(session.endedAt).getTime() - new Date(session.startedAt).getTime()) / 60000) 
@@ -169,6 +228,127 @@ export const ReportsPage = () => {
           </div>
         </div>
       )}
+
+      {/* Methodology Hot-Swap Control */}
+      {session.status !== 'active' && (
+        <div className="bg-slate-50 dark:bg-slate-900 shadow-inner rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 space-y-8 animate-in fade-in duration-1000">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black tracking-widest uppercase mb-2">
+                <span className="material-symbols-outlined text-[14px]">swap_horiz</span>
+                Framework Hot-Swap
+              </div>
+              <h3 className="text-2xl font-black">Methodology Analysis</h3>
+              <p className="text-slate-500 text-sm">Switch or compare different sales methodologies for this transcript.</p>
+            </div>
+            
+            <div className="flex flex-wrap gap-6 items-center">
+              {/* Framework A Selector */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Primary Perspective</label>
+                <div className="flex gap-2 p-1.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20">
+                   <select 
+                      value={frameworkAId} 
+                      onChange={(e) => setFrameworkAId(e.target.value)}
+                      className="bg-transparent border-none text-xs font-bold px-3 py-1.5 focus:ring-0 cursor-pointer min-w-[200px] dark:text-white appearance-none"
+                    >
+                      <option value="" className="dark:bg-slate-900">Select Methodology...</option>
+                      {['Custom Rubric', 'Standard'].map(group => (
+                        <optgroup key={group} label={group === 'Standard' ? "Standard Methodologies" : "Custom Rubrics"} className="dark:bg-slate-900 dark:text-slate-400">
+                          {allFrameworks.filter(f => (f as any).type === group).map(f => (
+                            <option key={f._id} value={f._id} className="dark:bg-slate-900 dark:text-white">{f.name}</option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                    <button 
+                      title="Run Diagnostic Analysis"
+                      disabled={!frameworkAId || !session?._id || reEvaluateMutation.isPending}
+                      onClick={() => {
+                        if (session?._id) {
+                          reEvaluateMutation.mutate({ sessId: session._id!, frameworkId: frameworkAId });
+                        }
+                      }}
+                      className={`size-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30 ${reEvaluateMutation.isPending ? 'bg-slate-100 animate-pulse' : 'bg-primary text-white hover:scale-105 active:scale-95 shadow-md shadow-primary/20'}`}
+                    >
+                      {reEvaluateMutation.isPending ? (
+                        <span className="material-symbols-outlined text-sm animate-spin">sync</span>
+                      ) : (
+                        <span className="material-symbols-outlined text-base">analytics</span>
+                      )}
+                    </button>
+                </div>
+              </div>
+
+              <div className="pt-5 text-slate-300 font-black text-xs">VS</div>
+
+              {/* Framework B Selector */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Comparison Lens</label>                <div className="flex gap-2 p-1.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20">
+                   <select 
+                      value={frameworkBId} 
+                      onChange={(e) => setFrameworkBId(e.target.value)}
+                      className="bg-transparent border-none text-xs font-bold px-3 py-1.5 focus:ring-0 cursor-pointer min-w-[200px] dark:text-white appearance-none"
+                    >
+                      <option value="" className="dark:bg-slate-900">Select Methodology...</option>
+                      {['Custom Rubric', 'Standard'].map(group => (
+                        <optgroup key={group} label={group === 'Standard' ? "Standard Methodologies" : "Custom Rubrics"} className="dark:bg-slate-900 dark:text-slate-400">
+                          {allFrameworks.filter(f => (f as any).type === group).map(f => (
+                            <option key={f._id} value={f._id} className="dark:bg-slate-900 dark:text-white">{f.name}</option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                    <button 
+                      title="Run Comparison Analysis"
+                      disabled={!frameworkBId || !session?._id || reEvaluateMutation.isPending}
+                      onClick={() => {
+                        if (session?._id) {
+                          reEvaluateMutation.mutate({ sessId: session._id!, frameworkId: frameworkBId });
+                        }
+                      }}
+                      className={`size-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30 ${reEvaluateMutation.isPending ? 'bg-slate-100 animate-pulse' : 'bg-primary text-white hover:scale-105 active:scale-95 shadow-md shadow-primary/20'}`}
+                    >
+                      {reEvaluateMutation.isPending ? (
+                        <span className="material-symbols-outlined text-sm animate-spin">sync</span>
+                      ) : (
+                        <span className="material-symbols-outlined text-base">analytics</span>
+                      )}
+                    </button>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowComparison(!showComparison)}
+                className={`h-12 px-6 rounded-2xl flex items-center gap-3 font-bold text-xs transition-all border ${showComparison 
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-lg' 
+                  : 'bg-white dark:bg-slate-950 text-slate-600 border-slate-200 dark:border-slate-800 hover:border-primary/50 hover:text-primary shadow-sm'}`}
+              >
+                <span className="material-symbols-outlined text-lg">
+                  {showComparison ? 'visibility_off' : 'compare'}
+                </span>
+                {showComparison ? 'Hide Comparison' : 'Side-by-Side View'}
+              </button>
+            </div>
+          </div>
+
+          {showComparison && frameworks && (
+            <FrameworkComparison 
+              session={session}
+              frameworkAId={frameworkAId}
+              frameworkBId={frameworkBId}
+              frameworks={allFrameworks as any}
+            />
+          )}
+
+          {reEvaluateMutation.isPending && (
+            <div className="flex items-center gap-3 text-slate-400 text-xs font-bold justify-center animate-pulse">
+              <span className="material-symbols-outlined animate-spin text-sm">sync</span>
+              AI is re-calibrating performance using selected methodology...
+            </div>
+          )}
+        </div>
+      )}
+
       {session.coachingInsights && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-4 duration-1000">
           <div className="lg:col-span-2 rounded-2xl p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-8">
