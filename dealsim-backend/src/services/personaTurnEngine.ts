@@ -27,14 +27,16 @@ interface TurnDecision {
 const TOPIC_KEYWORDS: Record<string, string[]> = {
   budget:       ['budget', 'cost', 'price', 'pricing', 'afford', 'investment', 'roi', 'spend', 'financial', 'revenue', 'risk'],
   technical:    ['integration', 'api', 'security', 'data', 'technical', 'implementation', 'architecture', 'infra', 'cloud', 'compliance', 'sso', 'sla'],
-  operational:  ['workflow', 'team', 'users', 'adoption', 'training', 'process', 'daily', 'onboard', 'productivity', 'support'],
+  operational:  ['workflow', 'team', 'users', 'adoption', 'training', 'process', 'daily', 'onboard', 'productivity', 'support', 'leadership'],
+  meta:         ['who', 'meeting', 'room', 'participants', 'everyone', 'team', 'join', 'introduce', 'lead'],
 };
 
 // Maps topic category to a role keyword match (partial match on the persona's role field)
 const ROLE_TOPIC_MAP: Record<string, string[]> = {
   budget:      ['cfo', 'finance', 'financial', 'vp finance', 'chief financial'],
   technical:   ['cto', 'it', 'engineer', 'architect', 'security', 'dev', 'technical', 'director of engineering'],
-  operational: ['user', 'operations', 'manager', 'vp', 'director', 'end user', 'business'],
+  operational: ['user', 'operations', 'manager', 'vp', 'director', 'end user', 'business', 'lead'],
+  meta:        ['vp', 'director', 'manager', 'lead', 'chief', 'head'],
 };
 
 /**
@@ -60,7 +62,7 @@ function scorePersonaForTopics(persona: ICommitteeMember, topics: string[]): num
   for (const topic of topics) {
     const roleKeywords = ROLE_TOPIC_MAP[topic] || [];
     if (roleKeywords.some(kw => roleL.includes(kw))) {
-      score += 10;
+      score += 25;
     }
   }
   return score;

@@ -9,16 +9,25 @@ import EvaluationFramework from '../models/EvaluationFramework.js';
 // Simulation "Compiler" Logic — mimics the Prompt Registry from the design doc
 function compilePrompts(persona: any, context: any, rubric: any, committeePersonas: any[] = []) {
   const isCommittee = committeePersonas.length > 0;
-
   const allPersonas = [persona, ...committeePersonas];
+  
   const committeeSummary = isCommittee
     ? `\n\n# BUYING COMMITTEE\nThis is a multi-stakeholder enterprise sale. The following personas may participate:\n${allPersonas.map(p => `- ${p.name} (${p.role}): Priorities include ${(p.personalityTraits || []).join(', ')}. Objections: ${(p.defaultObjections || []).join('; ')}.`).join('\n')}\nEach stakeholder will respond when the topic is relevant to their role. Stay strictly in character for whoever is speaking.`
     : '';
 
-  const systemPrompt = `You are an AI Roleplay Engine for DealSim. Your goal is to simulate a realistic buyer persona based on the provided context and traits.${committeeSummary}`;
+  const systemPrompt = `You are an AI Roleplay Engine for DealSim. Your goal is to simulate a realistic buyer persona based on the provided context and traits. You are participating in a multi-stakeholder meeting.
+${isCommittee ? 'If the user asks who is present or who is in the meeting, you MUST acknowledge and introduce the other members of the buying committee listed below.' : ''}
+${committeeSummary}
+
+# CRITICAL INSTRUCTIONS
+1. Respond ONLY as the current active stakeholder.
+2. DO NOT prefix your response with your name (e.g., don't write "John Doe: Hello"). The UI handles attribution.
+3. Use the transcript history to maintain context, but stay strictly in your specific role's character.
+4. "Seller" in the transcript is the user you are talking to.
+`;
   
   const personaPrompt = `
-# PRIMARY BUYER PERSONA
+# LEAD STAKEHOLDER
 Name: ${persona.name}
 Role: ${persona.role}
 Company: ${persona.company}

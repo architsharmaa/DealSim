@@ -15,6 +15,7 @@ import * as ConversationStateEngine from '../services/conversationStateEngine.js
 import * as EventExtractionEngine from '../services/eventExtractionEngine.js';
 import { WebhookDeliveryService } from '../services/webhookDeliveryService.js';
 import EvaluationFramework from '../models/EvaluationFramework.js';
+import * as PersonaTurnEngine from '../services/personaTurnEngine.js';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:3001';
 
@@ -23,10 +24,9 @@ function formatTranscript(transcripts: any[]): string {
   return transcripts
     .map((t) => {
       let speaker = t.speaker;
-      if (speaker === 'seller') speaker = 'Seller';
+      if (speaker === 'seller') speaker = 'You (Seller)';
       else if (speaker === 'buyer') speaker = 'Buyer';
-      else if (speaker === 'narrator') speaker = 'System';
-      // else it's already the persona name like 'CFO'
+      else if (speaker === 'narrator') speaker = 'Narrator';
       return `${speaker}: ${t.content}`;
     })
     .join('\n');
@@ -47,7 +47,7 @@ export const startSession = async (req: AuthRequest, res: Response, next: NextFu
       simulationId
     }).populate({
       path: 'simulationId',
-      populate: [{ path: 'personaId' }, { path: 'contextId' }, { path: 'rubricId' }]
+      populate: [{ path: 'personaId' }, { path: 'committeePersonaIds' }, { path: 'contextId' }, { path: 'rubricId' }]
     });
 
     if (existingSession) {
@@ -250,7 +250,7 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
       const lastBuyerEntry = [...session.transcripts].reverse().find(t => t.speaker !== 'seller');
       const lastSpeakerName = lastBuyerEntry?.speaker || null;
 
-      const { persona: selectedPersona, introductionLine } = require('../services/personaTurnEngine.js').selectNextPersona(
+      const { persona: selectedPersona, introductionLine } = PersonaTurnEngine.selectNextPersona(
         message,
         allPersonas.map(p => ({ ...p.toObject(), _id: String(p._id) })),
         lastSpeakerName,
@@ -273,7 +273,7 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
 
     // Build persona block for this turn
     const personaBlock = isCommittee
-      ? require('../services/personaTurnEngine.js').buildPersonaPrompt(activePersona)
+      ? PersonaTurnEngine.buildPersonaPrompt(activePersona)
       : `Name: ${activePersona.name}, Role: ${activePersona.role}`;
 
     // Call AI service using compiled prompt components
@@ -351,7 +351,7 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
     const fullSession = await Session.findById(session._id)
       .populate({
         path: 'simulationId',
-        populate: [{ path: 'personaId' }, { path: 'contextId' }, { path: 'rubricId' }]
+        populate: [{ path: 'personaId' }, { path: 'committeePersonaIds' }, { path: 'contextId' }, { path: 'rubricId' }]
       });
 
     res.json(fullSession);
@@ -485,7 +485,7 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
     const fullSession = await Session.findById(session._id)
       .populate({
         path: 'simulationId',
-        populate: [{ path: 'personaId' }, { path: 'contextId' }, { path: 'rubricId' }]
+        populate: [{ path: 'personaId' }, { path: 'committeePersonaIds' }, { path: 'contextId' }, { path: 'rubricId' }]
       });
 
     res.json(fullSession);

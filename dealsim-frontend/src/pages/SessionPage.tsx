@@ -76,9 +76,10 @@ export const SessionPage = () => {
     return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   };
 
-  const getSpeakerStyles = (speaker: string) => {
-    if (speaker === 'seller') return { bg: 'bg-slate-900 dark:bg-white', text: 'text-white dark:text-slate-900', label: 'Field Representative (You)' };
-    if (speaker === 'narrator') return { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-400', label: 'System' };
+  const getSpeakerStyles = (speaker: string = '') => {
+    const s = speaker || 'Unknown';
+    if (s === 'seller') return { bg: 'bg-slate-900 dark:bg-white', text: 'text-white dark:text-slate-900', label: 'Field Representative (You)' };
+    if (s === 'narrator') return { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-400', label: 'System' };
     
     // Hash-based color for personas
     const colors = [
@@ -89,10 +90,10 @@ export const SessionPage = () => {
       'from-violet-500 to-purple-600'
     ];
     let hash = 0;
-    for (let i = 0; i < speaker.length; i++) hash = speaker.charCodeAt(i) + ((hash << 5) - hash);
+    for (let i = 0; i < s.length; i++) hash = s.charCodeAt(i) + ((hash << 5) - hash);
     const color = colors[Math.abs(hash) % colors.length];
 
-    return { bg: `bg-gradient-to-br ${color}`, text: 'text-white', label: speaker };
+    return { bg: `bg-gradient-to-br ${color}`, text: 'text-white', label: s };
   };
 
   // Start session
@@ -449,15 +450,17 @@ export const SessionPage = () => {
                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Participants</p>
                <div className="space-y-3">
                  {[persona, ...(simulation.committeePersonaIds as any[])].filter(Boolean).map((p: any) => {
-                    const styles = getSpeakerStyles(p.name);
+                    const name = p.name || (typeof p === 'string' ? p : 'Unknown');
+                    const role = p.role || 'Stakeholder';
+                    const styles = getSpeakerStyles(name);
                     return (
-                      <div key={p._id || p.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 flex items-center gap-4">
+                      <div key={p._id || p.id || name} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 flex items-center gap-4">
                         <div className={`size-8 rounded-lg flex items-center justify-center font-black text-xs ${styles.bg} ${styles.text}`}>
-                          {p.name.charAt(0)}
+                          {name.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-xs font-black text-slate-900 dark:text-white leading-none">{p.name}</p>
-                          <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">{p.role}</p>
+                          <p className="text-xs font-black text-slate-900 dark:text-white leading-none">{name}</p>
+                          <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">{role}</p>
                         </div>
                       </div>
                     );

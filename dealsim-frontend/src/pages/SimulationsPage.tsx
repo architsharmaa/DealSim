@@ -11,6 +11,9 @@ export const SimulationsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
   const [committeePersonaIds, setCommitteePersonaIds] = useState<string[]>([]);
+  const [simulationType, setSimulationType] = useState<'single' | 'committee'>('single');
+  const [isCreatingPersona, setIsCreatingPersona] = useState(false);
+  const [isCreatingContext, setIsCreatingContext] = useState(false);
 
   // Queries
   const { data: simulations, isLoading: loadingSims } = useQuery<Simulation[]>({
@@ -44,6 +47,24 @@ export const SimulationsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['simulations'] });
       setIsModalOpen(false);
+      setCommitteePersonaIds([]);
+      setSimulationType('single');
+    },
+  });
+
+  const quickPersonaMutation = useMutation({
+    mutationFn: (newPersona: any) => apiClient.post('/personas', newPersona),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['personas'] });
+      setIsCreatingPersona(false);
+    },
+  });
+
+  const quickContextMutation = useMutation({
+    mutationFn: (newContext: any) => apiClient.post('/contexts', newContext),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contexts'] });
+      setIsCreatingContext(false);
     },
   });
 
@@ -55,9 +76,31 @@ export const SimulationsPage = () => {
       personaId: formData.get('personaId'),
       contextId: formData.get('contextId'),
       rubricId: formData.get('rubricId'),
-      committeePersonaIds,
+      committeePersonaIds: simulationType === 'committee' ? committeePersonaIds : [],
     };
     createMutation.mutate(data);
+  };
+
+  const handleQuickPersonaCreate = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    quickPersonaMutation.mutate({
+      name: formData.get('name'),
+      role: formData.get('role'),
+      company: formData.get('company'),
+      priorities: (formData.get('priorities') as string).split(',').map(p => p.trim()),
+    });
+  };
+
+  const handleQuickContextCreate = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    quickContextMutation.mutate({
+      product: formData.get('product'),
+      salesStage: formData.get('salesStage'),
+      dealSize: formData.get('dealSize'),
+      background: formData.get('background'),
+    });
   };
 
   const toggleCommitteeMember = (personaId: string) => {
@@ -191,26 +234,116 @@ export const SimulationsPage = () => {
               </button>
             </div>
             <form onSubmit={handleCreate} className="p-8 space-y-6">
+              {/* Simulation Type Toggle */}
+              <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl">
+                <button
+                  type="button"
+                  onClick={() => setSimulationType('single')}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all ${simulationType === 'single' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-500'}`}
+                >
+                  Single Buyer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSimulationType('committee')}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all ${simulationType === 'committee' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-500'}`}
+                >
+                  Buying Committee
+                </button>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Scenario Name</label>
                 <input name="name" required className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-transparent focus:border-primary focus:bg-white dark:focus:bg-slate-800 rounded-2xl transition-all" placeholder="e.g. Discovery Call - Solar Edge" />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Buyer Persona</label>
-                <select name="personaId" required className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-transparent focus:border-primary focus:bg-white dark:focus:bg-slate-800 rounded-2xl transition-all appearance-none cursor-pointer">
-                  <option value="">Select Persona...</option>
-                  {personas?.map(p => <option key={p._id} value={p._id}>{p.name} ({p.role})</option>)}
-                </select>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Primary Buyer Persona</label>
+                  {!isCreatingPersona && (
+                    <button type="button" onClick={() => setIsCreatingPersona(true)} className="text-[10px] font-black text-primary hover:underline">＋ Create New</button>
+                  )}
+                </div>
+                
+                {isCreatingPersona ? (
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border-2 border-primary/20 space-y-3 animate-in fade-in slide-in-from-top-2">
+                    <input name="name" placeholder="Name" required className="w-full px-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-sm" />
+                    <input name="role" placeholder="Role (e.g. CFO)" required className="w-full px-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-sm" />
+                    <input name="company" placeholder="Company" required className="w-full px-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-sm" />
+                    <input name="priorities" placeholder="Priorities (comma separated)" className="w-full px-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-sm" />
+                    <div className="flex gap-2 pt-1">
+                      <button type="button" onClick={() => setIsCreatingPersona(false)} className="flex-1 py-2 rounded-xl text-[10px] font-black bg-slate-200 dark:bg-slate-700">Cancel</button>
+                      <button type="button" onClick={(e) => handleQuickPersonaCreate(e as any)} className="flex-1 py-2 rounded-xl text-[10px] font-black bg-primary text-white">Save Persona</button>
+                    </div>
+                  </div>
+                ) : (
+                  <select name="personaId" required className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-transparent focus:border-primary focus:bg-white dark:focus:bg-slate-800 rounded-2xl transition-all appearance-none cursor-pointer">
+                    <option value="">Select Persona...</option>
+                    {personas?.map(p => <option key={p._id} value={p._id}>{p.name} ({p.role})</option>)}
+                  </select>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Deal Context</label>
-                <select name="contextId" required className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-transparent focus:border-primary focus:bg-white dark:focus:bg-slate-800 rounded-2xl transition-all appearance-none cursor-pointer">
-                  <option value="">Select Context...</option>
-                  {contexts?.map(c => <option key={c._id} value={c._id}>{c.product} - {c.salesStage}</option>)}
-                </select>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Deal Context</label>
+                  {!isCreatingContext && (
+                    <button type="button" onClick={() => setIsCreatingContext(true)} className="text-[10px] font-black text-primary hover:underline">＋ Create New</button>
+                  )}
+                </div>
+
+                {isCreatingContext ? (
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border-2 border-primary/20 space-y-3 animate-in fade-in slide-in-from-top-2">
+                    <input name="product" placeholder="Product" required className="w-full px-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-sm" />
+                    <select name="salesStage" className="w-full px-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-sm">
+                      <option value="discovery">Discovery</option>
+                      <option value="proposal">Proposal</option>
+                      <option value="negotiation">Negotiation</option>
+                    </select>
+                    <input name="dealSize" placeholder="Deal Size" className="w-full px-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-sm" />
+                    <div className="flex gap-2 pt-1">
+                      <button type="button" onClick={() => setIsCreatingContext(false)} className="flex-1 py-2 rounded-xl text-[10px] font-black bg-slate-200 dark:bg-slate-700">Cancel</button>
+                      <button type="button" onClick={(e) => handleQuickContextCreate(e as any)} className="flex-1 py-2 rounded-xl text-[10px] font-black bg-primary text-white">Save Context</button>
+                    </div>
+                  </div>
+                ) : (
+                  <select name="contextId" required className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-transparent focus:border-primary focus:bg-white dark:focus:bg-slate-800 rounded-2xl transition-all appearance-none cursor-pointer">
+                    <option value="">Select Context...</option>
+                    {contexts?.map(c => <option key={c._id} value={c._id}>{c.product} - {c.salesStage}</option>)}
+                  </select>
+                )}
               </div>
+
+              {simulationType === 'committee' && (
+                <div className="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-4 animate-in slide-in-from-top-4 duration-500">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Buying Committee <span className="text-slate-300 dark:text-slate-600">(max 2)</span></label>
+                    {committeePersonaIds.length > 0 && (
+                      <span className="text-[10px] font-black bg-primary/10 text-primary px-2 py-0.5 rounded-full">{committeePersonaIds.length} added</span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 pl-1">Add extra stakeholders for this multi-persona simulation.</p>
+                  <div className="flex flex-wrap gap-2">
+                    {personas?.map(p => {
+                      const isSelected = committeePersonaIds.includes(p._id || p.id);
+                      return (
+                        <button
+                          key={p._id || p.id}
+                          type="button"
+                          onClick={() => toggleCommitteeMember(p._id || p.id || '')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${isSelected
+                            ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                            : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-primary/50'
+                          }`}
+                        >
+                          {isSelected && <span className="mr-1">✓</span>}
+                          {p.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Grading Rubric</label>
@@ -223,36 +356,6 @@ export const SimulationsPage = () => {
                     {rubrics?.map(r => <option key={r._id} value={r._id}>{r.name}</option>)}
                   </optgroup>
                 </select>
-              </div>
-
-              {/* Buying Committee (optional) */}
-              <div className="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-4">
-                <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Buying Committee <span className="text-slate-300 dark:text-slate-600">(optional, max 2)</span></label>
-                  {committeePersonaIds.length > 0 && (
-                    <span className="text-[10px] font-black bg-primary/10 text-primary px-2 py-0.5 rounded-full">{committeePersonaIds.length} added</span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 pl-1">Add extra stakeholders for a multi-persona enterprise deal simulation.</p>
-                <div className="flex flex-wrap gap-2">
-                  {personas?.map(p => {
-                    const isSelected = committeePersonaIds.includes(p._id || p.id);
-                    return (
-                      <button
-                        key={p._id || p.id}
-                        type="button"
-                        onClick={() => toggleCommitteeMember(p._id || p.id || '')}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${isSelected
-                          ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
-                          : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-primary/50'
-                        }`}
-                      >
-                        {isSelected && <span className="mr-1">✓</span>}
-                        {p.name} <span className="opacity-60">({p.role})</span>
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
 
               <div className="pt-4 flex gap-4">
