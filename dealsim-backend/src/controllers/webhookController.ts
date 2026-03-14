@@ -84,7 +84,7 @@ export const getDeliveryLogs = async (req: AuthRequest, res: Response, next: Nex
       return res.status(404).json({ message: 'Webhook not found' });
     }
 
-    const logs = await DeliveryLog.find({ webhookId: id })
+    const logs = await DeliveryLog.find({ webhookId: String(id) })
       .sort({ timestamp: -1 })
       .limit(50)
       .lean();

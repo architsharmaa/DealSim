@@ -10,6 +10,7 @@ export const SimulationsPage = () => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
+  const [committeePersonaIds, setCommitteePersonaIds] = useState<string[]>([]);
 
   // Queries
   const { data: simulations, isLoading: loadingSims } = useQuery<Simulation[]>({
@@ -54,8 +55,17 @@ export const SimulationsPage = () => {
       personaId: formData.get('personaId'),
       contextId: formData.get('contextId'),
       rubricId: formData.get('rubricId'),
+      committeePersonaIds,
     };
     createMutation.mutate(data);
+  };
+
+  const toggleCommitteeMember = (personaId: string) => {
+    setCommitteePersonaIds(prev =>
+      prev.includes(personaId)
+        ? prev.filter(id => id !== personaId)
+        : prev.length < 2 ? [...prev, personaId] : prev // max 2 committee members
+    );
   };
 
   return (
@@ -213,6 +223,36 @@ export const SimulationsPage = () => {
                     {rubrics?.map(r => <option key={r._id} value={r._id}>{r.name}</option>)}
                   </optgroup>
                 </select>
+              </div>
+
+              {/* Buying Committee (optional) */}
+              <div className="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Buying Committee <span className="text-slate-300 dark:text-slate-600">(optional, max 2)</span></label>
+                  {committeePersonaIds.length > 0 && (
+                    <span className="text-[10px] font-black bg-primary/10 text-primary px-2 py-0.5 rounded-full">{committeePersonaIds.length} added</span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 pl-1">Add extra stakeholders for a multi-persona enterprise deal simulation.</p>
+                <div className="flex flex-wrap gap-2">
+                  {personas?.map(p => {
+                    const isSelected = committeePersonaIds.includes(p._id || p.id);
+                    return (
+                      <button
+                        key={p._id || p.id}
+                        type="button"
+                        onClick={() => toggleCommitteeMember(p._id || p.id || '')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${isSelected
+                          ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                          : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-primary/50'
+                        }`}
+                      >
+                        {isSelected && <span className="mr-1">✓</span>}
+                        {p.name} <span className="opacity-60">({p.role})</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="pt-4 flex gap-4">

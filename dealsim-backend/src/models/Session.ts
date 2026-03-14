@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 
 export interface ITranscriptEntry {
-  speaker: 'seller' | 'buyer';
+  speaker: string; // 'seller', 'buyer', or persona name like 'CFO', 'IT Director'
   content: string;
   timestamp: Date;
+  personaId?: string; // which committee persona spoke (if applicable)
 }
 
 export interface ISession extends mongoose.Document {
@@ -54,9 +55,10 @@ export interface ISession extends mongoose.Document {
 }
 
 const TranscriptEntrySchema = new mongoose.Schema({
-  speaker: { type: String, enum: ['seller', 'buyer'], required: true },
+  speaker: { type: String, required: true }, // flexible: 'seller', 'buyer', or persona name
   content: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
+  personaId: { type: String }, // tracks which committee member spoke
 });
 
 const SessionSchema = new mongoose.Schema({

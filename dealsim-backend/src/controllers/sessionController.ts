@@ -216,22 +216,67 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
     }
 
     const simulation = session.simulationId as any;
-    const persona = await Persona.findById(simulation.personaId);
     const context = await Context.findById(simulation.contextId);
 
-    if (!persona || !context) {
+    if (!context) {
       return res.status(500).json({ message: 'Session configuration is corrupted' });
     }
+
+    // --- Multi-Persona Committee Routing ---
+    const isCommittee = simulation.committeePersonaIds && simulation.committeePersonaIds.length > 0;
+    let activePersona: any;
+    let speakerName = 'buyer';
+
+    if (isCommittee) {
+      // Load all committee personas (primary + committee)
+      const allPersonaIds = [simulation.personaId, ...simulation.committeePersonaIds];
+      const allPersonas = await Persona.find({ _id: { $in: allPersonaIds } });
+
+      // Determine who has already spoken
+      const spokenIds = new Set(
+        session.transcripts
+          .filter(t => t.speaker !== 'seller' && t.speaker !== 'buyer' && (t as any).personaId)
+          .map(t => (t as any).personaId)
+      );
+
+      const lastBuyerEntry = [...session.transcripts].reverse().find(t => t.speaker !== 'seller');
+      const lastSpeakerName = lastBuyerEntry?.speaker || null;
+
+      const { persona: selectedPersona, introductionLine } = require('../services/personaTurnEngine.js').selectNextPersona(
+        message,
+        allPersonas.map(p => ({ ...p.toObject(), _id: String(p._id) })),
+        lastSpeakerName,
+        spokenIds
+      );
+
+      activePersona = selectedPersona;
+      speakerName = selectedPersona.name;
+
+      // Inject intro line as its own transcript entry (narration style)
+      if (introductionLine) {
+        session.transcripts.push({ speaker: 'narrator', content: introductionLine, timestamp: new Date() } as any);
+      }
+    } else {
+      activePersona = await Persona.findById(simulation.personaId);
+      if (!activePersona) {
+        return res.status(500).json({ message: 'Session configuration is corrupted' });
+      }
+    }
+
+    // Build persona block for this turn
+    const personaBlock = isCommittee
+      ? require('../services/personaTurnEngine.js').buildPersonaPrompt(activePersona)
+      : `Name: ${activePersona.name}, Role: ${activePersona.role}`;
 
     // Call AI service using compiled prompt components
     const aiResponse = await axios.post(`${AI_SERVICE_URL}/ai/generate-reply`, {
       persona: {
-        name: persona.name,
-        role: persona.role,
-        company: persona.company,
-        personalityTraits: persona.personalityTraits,
-        resistanceLevel: persona.resistanceLevel,
-        defaultObjections: persona.defaultObjections,
+        name: activePersona.name,
+        role: activePersona.role,
+        company: activePersona.company,
+        personalityTraits: activePersona.personalityTraits,
+        resistanceLevel: activePersona.resistanceLevel,
+        defaultObjections: activePersona.defaultObjections,
       },
       context: {
         product: context.product,
@@ -239,17 +284,17 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
         dealSize: context.dealSize,
         specialConditions: context.specialConditions,
       },
-      // Injects pre-compiled system prompts alongside transcript
-      // Limit to last 10 conversation turns for baseline token management
-      transcript: `${simulation.orchestratedPrompt.systemPrompt}\n\n${formatTranscript(session.transcripts.slice(-10))}`,
+      // Include committee prompt block + persona context + transcript
+      transcript: `${simulation.orchestratedPrompt.systemPrompt}\n\n${personaBlock}\n\n${formatTranscript(session.transcripts.slice(-10))}`,
     });
 
     const aiReply = aiResponse.data.reply;
 
     const buyerEntry: any = {
-      speaker: 'buyer',
+      speaker: speakerName,
       content: aiReply,
       timestamp: new Date(),
+      ...(isCommittee && activePersona._id ? { personaId: String(activePersona._id) } : {}),
     };
     session.transcripts.push(buyerEntry);
 

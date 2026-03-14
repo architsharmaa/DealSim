@@ -72,6 +72,7 @@ export interface Simulation {
   id?: string;
   name: string;
   personaId: string | Persona;
+  committeePersonaIds?: (string | Persona)[];
   contextId: string | Context;
   rubricId: string | Rubric;
   orchestratedPrompt: {
@@ -143,9 +144,10 @@ export interface Session {
 export interface Message {
   id?: string;
   _id?: string;
-  speaker: 'seller' | 'buyer';
+  speaker: string; // 'seller', 'buyer', persona name like 'CFO', or 'narrator'
   content: string;
   timestamp: string | Date;
+  personaId?: string; // populated if a specific committee persona spoke
 }
 
 export interface Evaluation {
