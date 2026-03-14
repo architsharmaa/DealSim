@@ -48,6 +48,13 @@ Special Conditions: ${context.specialConditions || 'None'}
 Evaluate the session based on the Rubric: ${rubric.name}.
 Competencies: ${rubric.competencies.map((c: any) => `${c.name} (${c.weight}%)`).join(', ')}.
 ${isCommittee ? `Also evaluate: Stakeholder Handling — did the seller adapt communication per persona, address each stakeholder's concerns, and resolve conflicting priorities?` : ''}
+
+# FEEDBACK REQUIREMENTS
+For every Strength and Weakness identified, you MUST provide "Evidence" in the form of a direct quote from the transcript.
+Format each strength/weakness as an object with:
+- "point": The qualitative feedback.
+- "evidence": A direct "quoted excerpt" from the transcript that supports this point.
+
 Provide qualitative feedback and a score out of 100.
 `;
 

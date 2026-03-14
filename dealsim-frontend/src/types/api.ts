@@ -104,8 +104,8 @@ export interface Session {
     objectionsResolved?: number;
     talkRatio?: { seller: number; buyer: number };
     feedback: {
-      strengths: string[];
-      weaknesses: string[];
+      strengths: Array<string | { point: string; evidence?: string }>;
+      weaknesses: Array<string | { point: string; evidence?: string }>;
       recommendations: string[];
     };
   } | null;
@@ -117,8 +117,8 @@ export interface Session {
     objectionsResolved?: number;
     talkRatio?: { seller: number; buyer: number };
     feedback: {
-      strengths: string[];
-      weaknesses: string[];
+      strengths: Array<string | { point: string; evidence?: string }>;
+      weaknesses: Array<string | { point: string; evidence?: string }>;
       recommendations: string[];
     };
     createdAt: string;

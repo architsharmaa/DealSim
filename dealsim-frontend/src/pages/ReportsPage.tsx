@@ -648,23 +648,49 @@ export const ReportsPage = () => {
             <hr className="border-slate-100 dark:border-slate-800"/>
             <div>
               <h3 className="text-slate-900 dark:text-slate-100 font-bold mb-4">Key Takeaways</h3>
-              <ul className="space-y-4">
-                 {evaluation?.feedback?.strengths?.map((s: string, i: number) => (
-                    <li key={i} className="flex gap-3">
-                      <div className="size-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
+            <ul className="space-y-6">
+              {evaluation?.feedback?.strengths?.map((s: any, i: number) => {
+                const isObj = typeof s === 'object' && s !== null;
+                const point = isObj ? s.point : s;
+                const evidence = isObj ? s.evidence : null;
+                return (
+                  <li key={i} className="space-y-3 group">
+                    <div className="flex gap-3">
+                      <div className="size-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                         <span className="material-symbols-outlined text-sm font-bold">check</span>
                       </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">{s}</p>
-                    </li>
-                  ))}
-                  {evaluation?.feedback?.weaknesses?.map((w: string, i: number) => (
-                    <li key={i} className="flex gap-3">
-                      <div className="size-6 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 flex items-center justify-center shrink-0">
+                      <p className="text-sm text-slate-700 dark:text-slate-100 font-bold leading-snug">{point}</p>
+                    </div>
+                    {evidence && (
+                      <div className="ml-9 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-[10px] text-slate-500 dark:text-slate-400 italic font-medium leading-relaxed relative">
+                        <span className="material-symbols-outlined text-[12px] opacity-30 absolute -left-1 -top-1">format_quote</span>
+                        {evidence}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+              {evaluation?.feedback?.weaknesses?.map((w: any, i: number) => {
+                const isObj = typeof w === 'object' && w !== null;
+                const point = isObj ? w.point : w;
+                const evidence = isObj ? w.evidence : null;
+                return (
+                  <li key={i} className="space-y-3 group">
+                    <div className="flex gap-3">
+                      <div className="size-6 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                         <span className="material-symbols-outlined text-sm font-bold">priority_high</span>
                       </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">{w}</p>
-                    </li>
-                  ))}
+                      <p className="text-sm text-slate-700 dark:text-slate-100 font-bold leading-snug">{point}</p>
+                    </div>
+                    {evidence && (
+                      <div className="ml-9 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-[10px] text-slate-500 dark:text-slate-400 italic font-medium leading-relaxed relative">
+                        <span className="material-symbols-outlined text-[12px] opacity-30 absolute -left-1 -top-1">format_quote</span>
+                        {evidence}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
                   {(evaluation as any)?.feedback?.recommendations?.map((r: string, i: number) => (
                     <li key={i} className="flex gap-3">
                       <div className="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">

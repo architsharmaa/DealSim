@@ -600,13 +600,26 @@ export const SessionPage = () => {
                     <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm font-black">done_all</span> Key Wins
                     </p>
-                    <ul className="space-y-3">
-                      {session.evaluations[0].feedback.strengths.map((s: string, i: number) => (
-                        <li key={i} className="flex gap-3 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 leading-relaxed group">
-                          <span className="size-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black flex-shrink-0 group-hover:scale-110 transition-transform">✓</span>
-                          {s}
-                        </li>
-                      ))}
+                    <ul className="space-y-4">
+                      {session.evaluations[0].feedback.strengths.map((s: any, i: number) => {
+                        const isObj = typeof s === 'object' && s !== null;
+                        const point = isObj ? s.point : s;
+                        const evidence = isObj ? s.evidence : null;
+                        return (
+                          <li key={i} className="space-y-2 group">
+                            <div className="flex gap-3 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 leading-relaxed">
+                              <span className="size-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black flex-shrink-0 group-hover:scale-110 transition-transform">✓</span>
+                              {point}
+                            </div>
+                            {evidence && (
+                              <div className="ml-8 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-800 dark:text-emerald-300 italic font-medium leading-relaxed relative">
+                                <span className="material-symbols-outlined text-[12px] opacity-50 absolute -left-1 -top-1">format_quote</span>
+                                {evidence}
+                              </div>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 )}
@@ -616,13 +629,26 @@ export const SessionPage = () => {
                     <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm font-black">report_problem</span> High Friction
                     </p>
-                    <ul className="space-y-3">
-                      {session.evaluations[0].feedback.weaknesses.map((w: string, i: number) => (
-                        <li key={i} className="flex gap-3 text-[11px] font-bold text-red-700 dark:text-red-400 leading-relaxed group">
-                          <span className="size-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black flex-shrink-0 group-hover:scale-110 transition-transform">!</span>
-                          {w}
-                        </li>
-                      ))}
+                    <ul className="space-y-4">
+                      {session.evaluations[0].feedback.weaknesses.map((w: any, i: number) => {
+                        const isObj = typeof w === 'object' && w !== null;
+                        const point = isObj ? w.point : w;
+                        const evidence = isObj ? w.evidence : null;
+                        return (
+                          <li key={i} className="space-y-2 group">
+                            <div className="flex gap-3 text-[11px] font-bold text-red-700 dark:text-red-400 leading-relaxed">
+                              <span className="size-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black flex-shrink-0 group-hover:scale-110 transition-transform">!</span>
+                              {point}
+                            </div>
+                            {evidence && (
+                              <div className="ml-8 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-[10px] text-red-800 dark:text-red-300 italic font-medium leading-relaxed relative">
+                                <span className="material-symbols-outlined text-[12px] opacity-50 absolute -left-1 -top-1">format_quote</span>
+                                {evidence}
+                              </div>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 )}

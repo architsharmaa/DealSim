@@ -30,8 +30,8 @@ export interface ISession extends mongoose.Document {
     competencyScores: Record<string, number>;
     overallScore: number;
     feedback: {
-      strengths: string[];
-      weaknesses: string[];
+      strengths: Array<string | { point: string; evidence?: string }>;
+      weaknesses: Array<string | { point: string; evidence?: string }>;
       recommendations: string[];
     };
     createdAt: Date;
