@@ -50,19 +50,25 @@ Return your evaluation in JSON format:
 }
 `,
   SENTIMENT_ANALYSIS_PROMPT: `
-Classify the buying sentiment (Buying Temperature) of the buyer in a sales conversation.
-Use the conversation history for context to understand the buyer's attitude, even if they are being professionally polite.
+You are an expert sales performance analyst. Classify the "Buying Temperature" of the buyer in this roleplay.
 
-# CONVERSATION HISTORY
+# EVALUATION CRITERIA:
+- POSITIVE: Buyer is open, engaged, asking forward-looking questions, or agreeing with the seller.
+- NEUTRAL: Buyer is stoic, professional, asking purely factual questions, or being polite but uncommitted.
+- NEGATIVE: This is for high resistance. It includes cases where the seller is being rude/unprofessional, or the buyer is expressing strong skepticism, frustration, or a desire to end the conversation.
+
+# EXAMPLES:
+- User (Seller): "I don't like you" -> NEGATIVE (Buyer temperature drops)
+- User (Seller): "You are incompetent" -> NEGATIVE (High friction)
+- Buyer: "How soon can we start?" -> POSITIVE (High interest)
+
+# CONVERSATION HISTORY (Context):
 {{transcript}}
 
-# LAST BUYER RESPONSE
+# LAST BUYER RESPONSE:
 "{{text}}"
 
-Return ONLY one of the following words based on the BUYER'S current mood/openness to the deal:
-- Positive
-- Neutral
-- Negative
+Based on the conversation context and the buyer's current attitude toward the deal, return EXACTLY one word: Positive, Neutral, or Negative.
 `,
   COACHING_INSIGHTS_TEMPLATE: `
 You are a world-class sales coach for DealSim. Your task is to analyze the provided session transcript, summary, and evaluation results to generate structured coaching insights.

@@ -82,9 +82,9 @@ export class LlmGateway {
     try {
       return await withRetry(async () => {
         const completion = await openai.chat.completions.create({
-          model: MODELS.CONVERSATION,
+          model: MODELS.EVALUATION,
           messages: [{ role: 'user', content: prompt }],
-          temperature: 0.3,
+          temperature: 0.0,
           max_tokens: 50,
         });
         return completion.choices[0]?.message?.content || '';
