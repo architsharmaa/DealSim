@@ -15,7 +15,7 @@ import * as ConversationStateEngine from '../services/conversationStateEngine.js
 import * as EventExtractionEngine from '../services/eventExtractionEngine.js';
 import { WebhookDeliveryService } from '../services/webhookDeliveryService.js';
 import EvaluationFramework from '../models/EvaluationFramework.js';
-import * as PersonaTurnEngine from '../services/personaTurnEngine.js';
+import { socketService } from '../services/socketService.js';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:3001';
 
@@ -347,6 +347,9 @@ export const sendMessage = async (req: AuthRequest, res: Response, next: NextFun
     session.markModified('analyticsSnapshots');
     await session.save();
 
+    // Push real-time analytics via WebSocket
+    socketService.emitToSession(sessionId as string, 'analytics_update', snapshot);
+
     // Re-fetch populated session to ensure frontend has all data
     const fullSession = await Session.findById(session._id)
       .populate({
@@ -443,6 +446,11 @@ export const endSession = async (req: AuthRequest, res: Response, next: NextFunc
     session.status = 'evaluated';
     session.endedAt = new Date();
     await session.save();
+
+    // Notify via WebSocket
+    socketService.emitToSession(sessionId, 'session_ended', { 
+        evaluationId: session.evaluations[0]?.frameworkId || 'default' 
+    });
 
     // Trigger Webhook: evaluation.ready
     WebhookDeliveryService.triggerEvent(req.organizationId as string, 'evaluation.ready', {

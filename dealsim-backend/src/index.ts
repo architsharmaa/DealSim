@@ -16,10 +16,17 @@ import organizationRoutes from './routes/organizationRoutes.js';
 import evaluationFrameworkRoutes from './routes/evaluationFrameworkRoutes.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 
+import { createServer } from 'http';
+import { socketService } from './services/socketService.js';
+
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const server = createServer(app);
+
+// Initialize Socket Service
+socketService.init(server);
 
 // Connect to Database
 connectDB();
@@ -48,6 +55,6 @@ app.get('/health', (req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server & WebSocket is running on port ${PORT}`);
 });

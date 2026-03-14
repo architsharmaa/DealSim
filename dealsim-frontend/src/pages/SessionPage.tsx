@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import apiClient from '../api/client';
 import type { Simulation, Session } from '../types/api';
+import { useSessionSocket } from '../hooks/useSessionSocket';
 
 export const SessionPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -22,6 +23,10 @@ export const SessionPage = () => {
   const [sending, setSending] = useState(false);
   const [ending, setEnding] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+
+  // Live Analytics from WebSocket
+  const { liveAnalytics, isSocketConnected } = useSessionSocket(sessionId === 'new' ? undefined : sessionId);
+  const latestSnapshot = liveAnalytics || session?.analyticsSnapshots?.[session.analyticsSnapshots.length - 1];
 
   // Load setup data
   useEffect(() => {
@@ -159,7 +164,6 @@ export const SessionPage = () => {
   const simulation = session?.simulationId as Simulation | undefined;
   const persona = simulation?.personaId as any;
   const context = simulation?.contextId as any;
-  const latestSnapshot = session?.analyticsSnapshots?.[session.analyticsSnapshots.length - 1];
 
   // Setup Modal
   if (showSetup) {
